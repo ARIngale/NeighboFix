@@ -34,6 +34,19 @@ const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview")
   const [bookings, setBookings] = useState([]);
   const [reviews, setReviews] = useState([])
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: {
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    },
+  })
+  const [updating, setUpdating] = useState(false)
+
 
     useEffect(() => {
         setBookings(sampleData);
@@ -46,6 +59,29 @@ const CustomerDashboard = () => {
     const hasReviewed = (bookingId) => {
         return reviews.some((review) => review.bookingId === bookingId)
     }
+
+    const handleProfileUpdate = () => {
+        alert("updated")
+    }
+
+    const handleProfileChange = (e) => {
+        const { name, value } = e.target
+        if (name.includes("address.")) {
+          const addressField = name.split(".")[1]
+          setProfile((prev) => ({
+            ...prev,
+            address: {
+              ...prev.address,
+              [addressField]: value,
+            },
+          }))
+        } else {
+          setProfile((prev) => ({
+            ...prev,
+            [name]: value,
+          }))
+        }
+      }
 
       
 
@@ -313,6 +349,127 @@ const CustomerDashboard = () => {
             {activeTab === "profile" && (
               <div className="max-w-4xl">
                 <h3 className="text-lg font-semibold text-black mb-6">Profile Information</h3>
+
+                <form onSubmit={handleProfileUpdate} className="space-y-8">
+                  {/* Personal Information */}
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h4 className="text-md font-semibold text-black mb-4">Personal Information</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <label className="block text-sm font-medium text-black mb-2">Full Name *</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={profile.name}
+                          onChange={handleProfileChange}
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                          placeholder="Enter your full name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-black mb-2">Email Address *</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={profile.email}
+                          onChange={handleProfileChange}
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                          placeholder="Enter your email"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-black mb-2">Phone Number *</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={profile.phone}
+                          onChange={handleProfileChange}
+                          required
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                          placeholder="Enter your phone number"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Address Information */}
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h4 className="text-md font-semibold text-black mb-4">Address Information</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-black mb-2">Street Address</label>
+                        <input
+                          type="text"
+                          name="address.street"
+                          value={profile.address.street}
+                          onChange={handleProfileChange}
+                          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                          placeholder="Enter your street address"
+                        />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-black mb-2">City</label>
+                          <input
+                            type="text"
+                            name="address.city"
+                            value={profile.address.city}
+                            onChange={handleProfileChange}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                            placeholder="City"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-black mb-2">State</label>
+                          <input
+                            type="text"
+                            name="address.state"
+                            value={profile.address.state}
+                            onChange={handleProfileChange}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                            placeholder="State"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-black mb-2">ZIP Code</label>
+                          <input
+                            type="text"
+                            name="address.zipCode"
+                            value={profile.address.zipCode}
+                            onChange={handleProfileChange}
+                            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200"
+                            placeholder="ZIP Code"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-4">
+                    <button
+                      type="button"
+                      className="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={updating}
+                      className="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {updating ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Updating...</span>
+                        </div>
+                      ) : (
+                        "Update Profile"
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
 
