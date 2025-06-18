@@ -119,6 +119,16 @@ const CustomerDashboard = () => {
             return status
         }
       }
+
+      const renderStars = (rating) => {
+        return [...Array(5)].map((_, index) => (
+          <span key={index} className={`text-lg ${index < rating ? "text-yellow-400" : "text-gray-300"}`}>
+            ★
+          </span>
+        ))
+      }
+
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -474,9 +484,40 @@ const CustomerDashboard = () => {
             )}
 
             {/* Reviews Tab */}
-            {activeTab === "reviews" && (
+               {/* Reviews Tab */}
+               {activeTab === "reviews" && (
               <div>
                 <h3 className="text-lg font-semibold text-black mb-6">My Reviews</h3>
+
+                {reviews.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">⭐</div>
+                    <h3 className="text-xl font-semibold text-black mb-2">No reviews yet</h3>
+                    <p className="text-gray-600">Complete a service to leave your first review!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <div key={review._id} className="border border-gray-200 rounded-lg p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="text-lg font-semibold text-black">{review.serviceName}</h4>
+                            <p className="text-gray-600">
+                              Provider: {review.providerId?.businessName || review.providerId?.name}
+                            </p>
+                            <div className="flex items-center mt-2">
+                              <div className="flex items-center mr-3">{renderStars(review.rating)}</div>
+                              <span className="text-sm text-gray-500">
+                                {new Date(review.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-gray-700 leading-relaxed">"{review.comment}"</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
