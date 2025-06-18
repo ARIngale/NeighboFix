@@ -5,11 +5,14 @@ import Services from "./pages/Services"
 import HowItWorks from "./pages/HowItWorks"
 import WhyChooseUs from "./pages/WhyChooseUs"
 import Contact from "./pages/Contact"
+import Navbar from "./components/Navbar"
 
 function App() {
 
   return (
     <Router>
+      <div className="min-h-screen bg-white text-black">
+      <Navbar/>
        <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<Services />} />
@@ -17,6 +20,7 @@ function App() {
             <Route path="/why-choose-us" element={<WhyChooseUs />} />
             <Route path="/contact" element={<Contact />} />
         </Routes>
+      </div>
     </Router>
   )
 }
