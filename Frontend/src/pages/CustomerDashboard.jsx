@@ -33,10 +33,21 @@ const sampleData = [
 const CustomerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview")
   const [bookings, setBookings] = useState([]);
+  const [reviews, setReviews] = useState([])
 
     useEffect(() => {
         setBookings(sampleData);
+        setReviews([
+            { bookingId: "3", rating: 5, comment: "Excellent AC repair service." },
+          ])
+        
     },[])
+
+    const hasReviewed = (bookingId) => {
+        return reviews.some((review) => review.bookingId === bookingId)
+    }
+
+      
 
     const getStatusColor = (status) => {
         switch (status) {
@@ -117,7 +128,7 @@ const CustomerDashboard = () => {
           </div>
 
           <div className="p-6">
-            
+
             {/* Overview Tab */}
             {activeTab === "overview" && (
               <div className="space-y-6">
@@ -181,6 +192,120 @@ const CustomerDashboard = () => {
                     Book New Service
                   </Link>
                 </div>
+
+                {bookings.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📅</div>
+                    <h3 className="text-xl font-semibold text-black mb-2">No bookings yet</h3>
+                    <p className="text-gray-600 mb-4">Book your first service to get started!</p>
+                    <Link
+                      to="/services"
+                      className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                      Browse Services
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {bookings.map((booking) => (
+                      <div key={booking._id} className="border border-gray-200 rounded-lg p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="text-xl font-semibold text-black">{booking.serviceName}</h4>
+                            <p className="text-gray-600">{booking.description}</p>
+                            {booking.providerId && (
+                              <p className="text-sm text-gray-500 mt-1">
+                                Provider: {booking.providerId.businessName || booking.providerId.name}
+                              </p>
+                            )}
+                          </div>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}
+                          >
+                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                          <div>
+                            <p className="text-gray-600">
+                              <strong>Date:</strong> {new Date(booking.preferredDate).toLocaleDateString()}
+                            </p>
+                            <p className="text-gray-600">
+                              <strong>Time:</strong> {booking.preferredTime}
+                            </p>
+                            <p className="text-gray-600">
+                              <strong>Amount:</strong> ${booking.totalAmount || 75}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600">
+                              <strong>Address:</strong> {booking.address}
+                            </p>
+                            <p className="text-gray-600">
+                              <strong>Contact:</strong> {booking.customerPhone}
+                            </p>
+                            <p className="text-gray-600">
+                              <strong>Status:</strong> {getStatusMessage(booking.status)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {booking.status === "completed" && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="flex items-center justify-between">
+                              <div className="text-sm text-green-600 font-medium">
+                                ✅ Service completed successfully!
+                              </div>
+                              <div className="space-x-2">
+                                {!hasReviewed(booking._id) ? (
+                                  <button
+                                    onClick={() => handleLeaveReview(booking)}
+                                    className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors text-sm"
+                                  >
+                                    Leave Review
+                                  </button>
+                                ) : (
+                                  <span className="text-sm text-green-600 font-medium">✅ Reviewed</span>
+                                )}
+                                <Link
+                                  to={`/book/${booking.serviceId}`}
+                                  className="border border-black text-black px-4 py-2 rounded hover:bg-black hover:text-white transition-colors text-sm inline-block"
+                                >
+                                  Book Again
+                                </Link>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {booking.status === "in-progress" && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="text-sm text-blue-600 font-medium">
+                              🔄 Service is currently in progress. The provider will update you when complete.
+                            </div>
+                          </div>
+                        )}
+
+                        {booking.status === "confirmed" && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="text-sm text-yellow-600 font-medium">
+                              ⏰ Service confirmed! The provider will contact you soon.
+                            </div>
+                          </div>
+                        )}
+
+                        {booking.status === "pending" && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="text-sm text-gray-600 font-medium">
+                              ⏳ Waiting for provider confirmation. You'll be notified once confirmed.
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
 
