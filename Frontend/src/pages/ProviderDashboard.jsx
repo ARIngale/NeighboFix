@@ -12,12 +12,8 @@ const ProviderDashboard = () => {
       basePrice: "",
       category: "",
     })
+    const [analytics, setAnalytics] = useState({})
   
-  
-    const handleInputChange = (e) => {
-        const { name, value } = e.target
-        setServiceForm({ ...serviceForm, [name]: value })
-      }
     
       const handleServiceSubmit = (e) => {
         e.preventDefault(); // <-- Add this
@@ -88,7 +84,8 @@ const ProviderDashboard = () => {
               </div>
             </div>
           </div>
-                  {/* Navigation Tabs */}
+          
+          {/* Navigation Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
           <div className="border-b border-gray-200">
             <nav className="flex space-x-8 px-6">
@@ -115,8 +112,33 @@ const ProviderDashboard = () => {
           </div>
 
           <div className="p-6">
-             {/* Services Tab */}
-             {activeTab === "services" && (
+
+            {/* Overview*/}
+            {activeTab === "overview" && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold text-black mb-2">Total Jobs</h3>
+                    <p className="text-3xl font-bold text-black">{analytics.completedJobs || 0}</p>
+                  </div>
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold text-black mb-2">This Month</h3>
+                    <p className="text-3xl font-bold text-blue-600">{analytics.monthlyBookings || 0}</p>
+                  </div>
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold text-black mb-2">Reviews</h3>
+                    <p className="text-3xl font-bold text-yellow-600">{analytics.totalReviews || 0}</p>
+                  </div>
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h3 className="text-lg font-semibold text-black mb-2">Earnings</h3>
+                    <p className="text-3xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Services Tab */}
+            {activeTab === "services" && (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h3 className="text-lg font-semibold text-black">My Services</h3>
