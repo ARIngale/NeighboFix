@@ -375,6 +375,111 @@ const ProviderDashboard = () => {
                 )}
               </div>
             )}
+
+            {/* Analytics Tab */}
+            {activeTab === "analytics" && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-black">Performance Analytics</h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h4 className="text-lg font-semibold text-black mb-4">Booking Status</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Pending</span>
+                        <span className="font-semibold text-gray-600">{analytics.pendingBookings || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Confirmed</span>
+                        <span className="font-semibold text-yellow-600">{analytics.confirmedBookings || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>In Progress</span>
+                        <span className="font-semibold text-blue-600">{analytics.inProgressBookings || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Completed</span>
+                        <span className="font-semibold text-green-600">{analytics.completedJobs || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h4 className="text-lg font-semibold text-black mb-4">Performance Metrics</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Response Rate</span>
+                        <span className="font-semibold">{analytics.responseRate || 0}%</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Average Rating</span>
+                        <span className="font-semibold">{analytics.averageRating || 0}/5</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total Reviews</span>
+                        <span className="font-semibold">{analytics.totalReviews || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-6 rounded-lg">
+                    <h4 className="text-lg font-semibold text-black mb-4">Earnings</h4>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span>Total Earnings</span>
+                        <span className="font-semibold text-green-600">${analytics.totalEarnings || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>This Month</span>
+                        <span className="font-semibold text-green-600">${analytics.monthlyEarnings || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Avg per Job</span>
+                        <span className="font-semibold">$75</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-black mb-4">Monthly Trends</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <h5 className="font-medium text-black mb-2">Booking Trends</h5>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>This Month</span>
+                          <span className="font-semibold">{analytics.monthlyBookings || 0} bookings</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Completion Rate</span>
+                          <span className="font-semibold">
+                            {analytics.totalBookings > 0
+                              ? Math.round((analytics.completedJobs / analytics.totalBookings) * 100)
+                              : 0}
+                            %
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <h5 className="font-medium text-black mb-2">Revenue Trends</h5>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Monthly Revenue</span>
+                          <span className="font-semibold text-green-600">${analytics.monthlyEarnings || 0}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Growth Rate</span>
+                          <span className="font-semibold text-green-600">+15%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
