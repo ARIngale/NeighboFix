@@ -7,6 +7,8 @@ import WhyChooseUs from "./pages/WhyChooseUs"
 import Contact from "./pages/Contact"
 import Navbar from "./components/Navbar"
 import Footer from "./components/Footer"
+import CustomerDashboard from './pages/CustomerDashboard'
+import ProviderDashboard from './pages/ProviderDashboard'
 
 function App() {
 
@@ -20,6 +22,8 @@ function App() {
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route path="/why-choose-us" element={<WhyChooseUs />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/customer-dashboard" element={<CustomerDashboard /> } />
+            <Route path="/provider-dashboard" element={ <ProviderDashboard /> } />
         </Routes>
         <Footer />
       </div>
