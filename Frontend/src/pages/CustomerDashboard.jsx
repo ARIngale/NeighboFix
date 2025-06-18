@@ -484,8 +484,7 @@ const CustomerDashboard = () => {
             )}
 
             {/* Reviews Tab */}
-               {/* Reviews Tab */}
-               {activeTab === "reviews" && (
+            {activeTab === "reviews" && (
               <div>
                 <h3 className="text-lg font-semibold text-black mb-6">My Reviews</h3>
 
