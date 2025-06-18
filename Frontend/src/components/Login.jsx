@@ -57,9 +57,7 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
     setLoading(true)
     setError("")
 
-
     navigate(userType === "customer" ? "/customer-dashboard" : "/provider-dashboard")
-
 
     setLoading(false)
   }
