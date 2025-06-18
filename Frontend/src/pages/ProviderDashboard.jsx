@@ -13,6 +13,41 @@ const ProviderDashboard = () => {
       category: "",
     })
     const [analytics, setAnalytics] = useState({})
+    const [bookings, setBookings] = useState([
+        {
+          _id: "1",
+          serviceName: "Plumbing Repair",
+          description: "Fix leaking kitchen pipe.",
+          customerName: "Rahul Sharma",
+          customerPhone: "9876543210",
+          customerEmail: "rahul@example.com",
+          preferredDate: new Date().toISOString(),
+          preferredTime: "10:00 AM",
+          address: "123 MG Road, Pune",
+          status: "pending", // other statuses: confirmed, in-progress, completed, cancelled
+        },
+        {
+          _id: "2",
+          serviceName: "Electrical Fix",
+          description: "Repair bedroom fan.",
+          customerName: "Sneha Desai",
+          customerPhone: "9123456780",
+          customerEmail: "sneha@example.com",
+          preferredDate: new Date().toISOString(),
+          preferredTime: "2:00 PM",
+          address: "456 JM Road, Pune",
+          status: "confirmed",
+        },
+      ])
+      const [showPaymentModal, setShowPaymentModal] = useState(false)
+      const [selectedBooking, setSelectedBooking] = useState(null)
+
+      const [paymentForm, setPaymentForm] = useState({
+        amount: "",
+        paymentMethod: "cash",
+        notes: "",
+      })
+      
   
     
       const handleServiceSubmit = (e) => {
@@ -61,6 +96,49 @@ const ProviderDashboard = () => {
           category: "",
         })
       }
+
+      const handleBookingAction = (id, newStatus) => {
+        const updatedBookings = bookings.map((booking) =>
+          booking._id === id ? { ...booking, status: newStatus } : booking
+        )
+        setBookings(updatedBookings)
+      }
+
+      const getStatusColor = (status) => {
+        switch (status) {
+          case "completed":
+            return "text-green-600 bg-green-100"
+          case "in-progress":
+            return "text-blue-600 bg-blue-100"
+          case "confirmed":
+            return "text-yellow-600 bg-yellow-100"
+          case "pending":
+            return "text-gray-600 bg-gray-100"
+          case "cancelled":
+            return "text-red-600 bg-red-100"
+          default:
+            return "text-gray-600 bg-gray-100"
+        }
+      }
+
+    const handleCompleteService = (booking) => {
+        setSelectedBooking(booking)
+        setPaymentForm({
+        amount: booking.totalAmount || "75",
+        paymentMethod: "cash",
+        notes: "",
+        })
+        setShowPaymentModal(true)
+    }
+
+
+    const handlePaymentSubmit = async (e) => {
+        e.preventDefault()
+        setShowPaymentModal(false)
+        setSelectedBooking(null)
+        alert("Service completed and payment recorded successfully!")
+
+    }
     
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -134,6 +212,100 @@ const ProviderDashboard = () => {
                     <p className="text-3xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Active Bookings Tab */}
+            {activeTab === "bookings" && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-black">Active Service Requests</h3>
+
+                {bookings.filter((b) => b.status !== "completed" && b.status !== "cancelled").length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📋</div>
+                    <h3 className="text-xl font-semibold text-black mb-2">No active bookings</h3>
+                    <p className="text-gray-600">New service requests will appear here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {bookings
+                      .filter((b) => b.status !== "completed" && b.status !== "cancelled")
+                      .map((booking) => (
+                        <div key={booking._id} className="border border-gray-200 rounded-lg p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-xl font-semibold text-black">{booking.serviceName}</h4>
+                              <p className="text-gray-600">{booking.description}</p>
+                            </div>
+                            <span
+                                className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(booking.status)}`}
+                                >
+                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                            <div>
+                              <p className="text-gray-600">
+                                <strong>Customer:</strong> {booking.customerName}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Phone:</strong> {booking.customerPhone}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Email:</strong> {booking.customerEmail}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">
+                                <strong>Date:</strong> {new Date(booking.preferredDate).toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Time:</strong> {booking.preferredTime}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Address:</strong> {booking.address}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex space-x-2">
+                            {booking.status === "pending" && (
+                              <>
+                                <button
+                                  onClick={() => handleBookingAction(booking._id, "confirmed")}
+                                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() => handleBookingAction(booking._id, "cancelled")}
+                                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                                >
+                                  Decline
+                                </button>
+                              </>
+                            )}
+                            {booking.status === "confirmed" && (
+                              <button
+                                onClick={() => handleBookingAction(booking._id, "in-progress")}
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                              >
+                                Start Job
+                              </button>
+                            )}
+                            {booking.status === "in-progress" && (
+                              <button
+                                onClick={() => handleCompleteService(booking)}
+                                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+                              >
+                                Complete & Get Payment
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             )}
 
@@ -302,6 +474,82 @@ const ProviderDashboard = () => {
                   </button>
                   <button type="submit" className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800">
                     {editingService ? "Update Service" : "Add Service"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+           {/* Payment Modal */}
+           {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full">
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-bold text-black">Complete Service & Payment</h3>
+                <button onClick={() => setShowPaymentModal(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-semibold text-black">{selectedBooking?.serviceName}</h4>
+                <p className="text-gray-600">Customer: {selectedBooking?.customerName}</p>
+                <p className="text-gray-600">Date: {new Date(selectedBooking?.preferredDate).toLocaleDateString()}</p>
+              </div>
+
+              <form onSubmit={handlePaymentSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Service Amount ($)</label>
+                  <input
+                    type="number"
+                    value={paymentForm.amount}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
+                    required
+                    min="1"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    placeholder="75"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Payment Method</label>
+                  <select
+                    value={paymentForm.paymentMethod}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="card">Credit/Debit Card</option>
+                    <option value="digital_wallet">Digital Wallet</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Notes (Optional)</label>
+                  <textarea
+                    value={paymentForm.notes}
+                    onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    placeholder="Any additional notes about the service..."
+                  />
+                </div>
+
+                <div className="flex space-x-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowPaymentModal(false)}
+                    className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                    Complete Service
                   </button>
                 </div>
               </form>
