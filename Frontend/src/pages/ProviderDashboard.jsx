@@ -41,7 +41,7 @@ const ProviderDashboard = () => {
       ])
       const [showPaymentModal, setShowPaymentModal] = useState(false)
       const [selectedBooking, setSelectedBooking] = useState(null)
-
+      const [feedback, setFeedback] = useState([])
       const [paymentForm, setPaymentForm] = useState({
         amount: "",
         paymentMethod: "cash",
@@ -131,7 +131,6 @@ const ProviderDashboard = () => {
         setShowPaymentModal(true)
     }
 
-
     const handlePaymentSubmit = async (e) => {
         e.preventDefault()
         setShowPaymentModal(false)
@@ -140,6 +139,34 @@ const ProviderDashboard = () => {
 
     }
     
+    const generateInsights = () => {
+        const completedBookings = bookings.filter((b) => b.status === "completed")
+        const totalRating = feedback.reduce((sum, review) => sum + review.rating, 0)
+        const avgRating = feedback.length > 0 ? (totalRating / feedback.length).toFixed(1) : 0
+    
+        const insights = []
+    
+        if (avgRating >= 4.5) {
+          insights.push("Excellent work! Your high ratings show customers love your service quality.")
+        } else if (avgRating >= 4.0) {
+          insights.push("Good job! Consider focusing on areas mentioned in reviews to reach 4.5+ stars.")
+        } else if (avgRating > 0) {
+          insights.push("There's room for improvement. Focus on customer communication and service quality.")
+        }
+    
+        if (completedBookings.length > 10) {
+          insights.push("Great job on completing many services! Consider expanding your service offerings.")
+        }
+    
+        if (services.length < 3) {
+          insights.push("Consider adding more services to attract a wider range of customers.")
+        }
+    
+        return insights.length > 0
+          ? insights
+          : ["Keep up the good work! Complete more services to get personalized insights."]
+      }
+      
     return (
         <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -479,6 +506,83 @@ const ProviderDashboard = () => {
                 </div>
               </div>
             )}
+            
+            {/* Feedback Tab */}
+            {activeTab === "feedback" && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-black">Customer Feedback & Insights</h3>
+
+                {/* Key Insights */}
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-black mb-4">Key Insights</h4>
+                  <div className="space-y-3">
+                    {generateInsights().map((insight, index) => (
+                      <div key={index} className="flex items-start">
+                        <div className="w-4 h-4 bg-blue-500 rounded-full mr-3 mt-1 flex-shrink-0"></div>
+                        <span className="text-gray-700">{insight}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Performance Metrics */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-black mb-2">Average Rating</h4>
+                    <p className="text-3xl font-bold text-green-600">
+                      {feedback.length > 0
+                        ? (feedback.reduce((sum, r) => sum + r.rating, 0) / feedback.length).toFixed(1)
+                        : "0.0"}
+                    </p>
+                    <p className="text-sm text-gray-600">Based on {feedback.length} reviews</p>
+                  </div>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-black mb-2">Completion Rate</h4>
+                    <p className="text-3xl font-bold text-yellow-600">
+                      {bookings.length > 0
+                        ? Math.round((bookings.filter((b) => b.status === "completed").length / bookings.length) * 100)
+                        : 0}
+                      %
+                    </p>
+                    <p className="text-sm text-gray-600">Of all bookings</p>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                    <h4 className="text-lg font-semibold text-black mb-2">Response Time</h4>
+                    <p className="text-3xl font-bold text-purple-600">2.5h</p>
+                    <p className="text-sm text-gray-600">Average response</p>
+                  </div>
+                </div>
+
+                {/* Recent Reviews */}
+                <div className="bg-white border border-gray-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-black mb-4">Recent Customer Reviews</h4>
+                  {feedback.length > 0 ? (
+                    <div className="space-y-4">
+                      {feedback.slice(0, 5).map((review) => (
+                        <div key={review._id} className="border-l-4 border-green-500 pl-4">
+                          <div className="flex items-center mb-2">
+                            <div className="text-yellow-400 mr-2">
+                              {"★".repeat(review.rating)}
+                              {"☆".repeat(5 - review.rating)}
+                            </div>
+                            <span className="text-sm text-gray-500">
+                              {new Date(review.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="text-gray-700 mb-1">"{review.comment}"</p>
+                          <p className="text-sm text-gray-500">{review.serviceName} - Customer</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="text-4xl mb-4">💬</div>
+                      <p className="text-gray-600">No reviews yet. Complete some services to receive feedback!</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
           </div>
         </div>
@@ -585,10 +689,10 @@ const ProviderDashboard = () => {
             </div>
           </div>
         </div>
-      )}
+    )}
 
-           {/* Payment Modal */}
-           {showPaymentModal && (
+        {/* Payment Modal */}
+        {showPaymentModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full">
             <div className="p-6">
