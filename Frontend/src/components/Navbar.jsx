@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { useLocation, Link } from "react-router-dom"
+import { useLocation, Link ,useNavigate} from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 import Login from "./Login"
 
 const Navbar = () => {
@@ -7,20 +8,18 @@ const Navbar = () => {
   const location = useLocation()
   const [showLogin, setShowLogin] = useState(false)
   const [loginType, setLoginType] = useState("")
-  const [user, setUser] = useState(null) // Simulated user object
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const handleLoginClick = (type) => {
     setLoginType(type)
     setShowLogin(true)
-    // Simulate login
-    setUser({
-      name: type === "customer" ? "Alice" : "Bob",
-      role: type
-    })
   }
 
   const handleLogout = () => {
-    setUser(null)
+    logout()
+    navigate("/") // Redirect to home page after logout
+    setIsOpen(false)
   }
 
   const isActive = (path) =>
