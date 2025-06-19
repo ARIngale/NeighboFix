@@ -28,6 +28,7 @@ const ProviderDashboard = () => {
       
       useEffect(() => {
         fetchProviderData()
+        fetchFeedback()
       }, [])
 
 
@@ -58,7 +59,16 @@ const ProviderDashboard = () => {
           // 
         }
       }
-        
+      
+      const fetchFeedback = async () => {
+        try {
+          const response = await fetch(`http://localhost:5000/api/reviews/provider/${user.id}`)
+          const data = await response.json()
+          setFeedback(data)
+        } catch (error) {
+          console.error("Error fetching feedback:", error)
+        }
+      }
     
       const handleServiceSubmit = async (e) => {
         e.preventDefault()
@@ -211,7 +221,7 @@ const ProviderDashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold text-black">Provider Dashboard</h1>
-                <p className="text-gray-600">Welcome back,!</p>
+                <p className="text-gray-600">Welcome back, {user?.name}!</p>
               </div>
               <div className="flex items-center space-x-4">
                 <div className="text-right">
