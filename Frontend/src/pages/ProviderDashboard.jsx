@@ -1,6 +1,9 @@
-import { useState } from "react"
+import { useState,useEffect } from "react"
+import { useAuth } from "../context/AuthContext"
+
 
 const ProviderDashboard = () => {
+    const { user, token } = useAuth()
     const [activeTab, setActiveTab] = useState("overview")
     const [services, setServices] = useState([])
     const [showServiceModal, setShowServiceModal] = useState(false)
@@ -48,54 +51,98 @@ const ProviderDashboard = () => {
         notes: "",
       })
       
-  
+      useEffect(() => {
+        fetchProviderData()
+      }, [])
+
+      const fetchProviderData = async () => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/services/provider/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+      
+          const data = await response.json()
+          setServices(data)
+        } catch (error) {
+          console.error("Error fetching provider data:", error)
+        } finally {
+          // 
+        }
+      }
+        
     
-      const handleServiceSubmit = (e) => {
-        e.preventDefault(); // <-- Add this
-        if (!serviceForm.name || !serviceForm.basePrice) {
-          alert("Name and Base Price are required!");
-          return;
+      const handleServiceSubmit = async (e) => {
+        e.preventDefault()
+        try {
+          const url = editingService
+            ? `${import.meta.env.VITE_API_URL}/services/${editingService._id}`
+            : `${import.meta.env.VITE_API_URL}/services`
+    
+          const method = editingService ? "PUT" : "POST"
+    
+          const response = await fetch(url, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(serviceForm),
+          })
+    
+          if (response.ok) {
+            setShowServiceModal(false)
+            setEditingService(null)
+            setServiceForm({
+              name: "",
+              description: "",
+              icon: "🔧",
+              basePrice: "",
+              category: "",
+            })
+            fetchProviderData()
+            alert(editingService ? "Service updated successfully!" : "Service created successfully!")
+          } else {
+            alert("Failed to save service")
+          }
+        } catch (error) {
+          console.error("Error saving service:", error)
+          alert("Failed to save service")
         }
-      
-        if (editingService) {
-          const updated = services.map((s) =>
-            s._id === editingService._id ? { ...s, ...serviceForm } : s
-          );
-          setServices(updated);
-          setEditingService(null);
-        } else {
-          const newService = {
-            ...serviceForm,
-            _id: Date.now().toString(),
-          };
-          setServices([...services, newService]);
-        }
-      
-        setShowServiceModal(false);
-        resetForm();
-      };
+      }
       
       const handleEditService = (service) => {
         setEditingService(service)
-        setServiceForm({ ...service })
+        setServiceForm({
+          name: service.name,
+          description: service.description,
+          icon: service.icon,
+          basePrice: service.basePrice.toString(),
+          category: service.category,
+        })
         setShowServiceModal(true)
       }
     
-      const handleDeleteService = (id) => {
+      const handleDeleteService = async (serviceId) => {
         if (window.confirm("Are you sure you want to delete this service?")) {
-          setServices(services.filter((s) => s._id !== id))
+          try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/services/${serviceId}`, {
+              method: "DELETE",
+              headers: { Authorization: `Bearer ${token}` },
+            })
+    
+            if (response.ok) {
+              fetchProviderData()
+              alert("Service deleted successfully!")
+            } else {
+              alert("Failed to delete service")
+            }
+          } catch (error) {
+            console.error("Error deleting service:", error)
+            alert("Failed to delete service")
+          }
         }
       }
-    
-      const resetForm = () => {
-        setServiceForm({
-          name: "",
-          description: "",
-          icon: "🔧",
-          basePrice: "",
-          category: "",
-        })
-      }
+
 
       const handleBookingAction = (id, newStatus) => {
         const updatedBookings = bookings.map((booking) =>
