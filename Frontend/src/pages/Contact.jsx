@@ -22,7 +22,25 @@ const Contact = () => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    alert("Message Send Successfully")
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        setSubmitMessage("Thank you for your message! We'll get back to you soon.")
+        setFormData({ name: "", email: "", message: "" })
+      } else {
+        setSubmitMessage("Sorry, there was an error sending your message. Please try again.")
+      }
+    } catch (error) {
+      setSubmitMessage("Sorry, there was an error sending your message. Please try again.")
+    }
+
     setIsSubmitting(false)
   }
 
