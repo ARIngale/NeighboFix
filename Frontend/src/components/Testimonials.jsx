@@ -1,49 +1,86 @@
 "use client"
 
-import { useState } from "react"
-
-const initialPlatformReviews = [
-  {
-    id: 1,
-    user: "Amit Sharma",
-    rating: 5,
-    comment: "Excellent platform! Very easy to book services and all providers are professional.",
-    date: "2025-06-10"
-  },
-  {
-    id: 2,
-    user: "Sneha Desai",
-    rating: 4,
-    comment: "Used the platform for home cleaning and plumbing – smooth experience overall!",
-    date: "2025-06-14"
-  },
-  {
-    id: 3,
-    user: "Ravi Kulkarni",
-    rating: 3,
-    comment: "Service was good, but had a slight delay in provider arrival. Support helped quickly though.",
-    date: "2025-06-15"
-  },
-  {
-    id: 4,
-    user: "Priyanka Joshi",
-    rating: 4,
-    comment: "Really convenient to get multiple home services in one place.",
-    date: "2025-06-17"
-  },
-  {
-    id: 5,
-    user: "Rahul Mehta",
-    rating: 5,
-    comment: "Best booking experience I’ve had! Great UI and trusted service providers.",
-    date: "2025-06-18"
-  }
-]
+import { useState, useEffect } from "react"
+import { useAuth } from "../context/AuthContext"
+import Login from "./Login"
 
 const Testimonials = () => {
-  const [platformReviews, setPlatformReviews] = useState(initialPlatformReviews)
-  const [newReview, setNewReview] = useState({ user: "", rating: 0, comment: "" })
+  const [platformReviews, setPlatformReviews] = useState([])
+  const [newReview, setNewReview] = useState({ rating: 0, comment: "" })
   const [showForm, setShowForm] = useState(false)
+  const [showLogin, setShowLogin] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  const { user, token } = useAuth()
+
+  // Fetch approved platform reviews
+  const fetchReviews = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews/platform`)
+      if (response.ok) {
+        const data = await response.json()
+        setPlatformReviews(data)
+      }
+    } catch (err) {
+      console.error("Error fetching reviews:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchReviews()
+  }, [])
+
+  // Submit a new platform review
+  const handleSubmitReview = async () => {
+    if (!newReview.comment || newReview.rating === 0) {
+      alert("Please fill in all fields.")
+      return
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews/platform`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          rating: newReview.rating,
+          comment: newReview.comment,
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setPlatformReviews([data, ...platformReviews])
+        setNewReview({ rating: 0, comment: "" })
+        setShowForm(false)
+      } else {
+        const err = await response.json()
+        alert(err.message || "Something went wrong")
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error)
+      alert("Failed to submit review.")
+    }
+  }
+
+  // Click handler for "Write a Review"
+  const handleWriteReviewClick = () => {
+    if (!user) {
+      setShowLogin(true)
+      return
+    }
+
+    if (user.role !== "customer") {
+      alert("Only customers can write reviews.")
+      return
+    }
+
+    setShowForm(true)
+  }
 
   const renderStars = (rating) => (
     <div className="flex gap-1 text-yellow-400 text-xl">
@@ -55,23 +92,6 @@ const Testimonials = () => {
 
   const handleRatingChange = (rating) => {
     setNewReview({ ...newReview, rating })
-  }
-
-  const handleSubmitReview = () => {
-    if (!newReview.user || !newReview.comment || newReview.rating === 0) {
-      alert("Please fill in all fields including rating.")
-      return
-    }
-
-    const review = {
-      ...newReview,
-      id: platformReviews.length + 1,
-      date: new Date().toISOString().split("T")[0]
-    }
-
-    setPlatformReviews([review, ...platformReviews])
-    setNewReview({ user: "", rating: 0, comment: "" })
-    setShowForm(false)
   }
 
   return (
@@ -92,41 +112,41 @@ const Testimonials = () => {
           </p>
         </div>
 
-        {/* Auto Sliding Marquee Testimonials */}
-        <div className="overflow-hidden relative">
-          <div
-            className="flex gap-6 h-full animate-marquee whitespace-nowrap hover:[animation-play-state:paused]"
-          >
-            {[...platformReviews, ...platformReviews].map((review, i) => (
-              <div
-                key={`${review.id}-${i}`}
-                className="min-w-[300px] max-w-[300px] bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col"
+        {loading ? (
+          <p className="text-center">Loading reviews...</p>
+        ) : (
+          <div className="overflow-hidden relative">
+            <div className="flex gap-6 h-full animate-marquee whitespace-nowrap hover:[animation-play-state:paused]">
+              {[...platformReviews, ...platformReviews].map((review, i) => (
+                <div
+                  key={`${review._id}-${i}`}
+                  className="min-w-[300px] max-w-[300px] bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col"
                 >
-                <div className="flex items-center mb-3">
-                  <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold mr-3">
-                    {review.user.charAt(0)}
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-black">{review.user}</h4>
-                    <div className="text-sm text-gray-400">
-                      {new Date(review.date).toLocaleDateString()}
+                  <div className="flex items-center mb-3">
+                    <div className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center font-bold mr-3">
+                      {review.customerName?.charAt(0) || "U"}
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-black">{review.customerName || "Unknown"}</h4>
+                      <div className="text-sm text-gray-400">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </div>
                     </div>
                   </div>
+                  <div className="mb-2">{renderStars(review.rating)}</div>
+                  <p className="text-gray-700 text-sm break-words text-wrap">
+                    "{review.comment}"
+                  </p>
                 </div>
-                <div className="mb-2">{renderStars(review.rating)}</div>
-                <p className="text-gray-700 text-sm break-words text-wrap">
-                  "{review.comment}"
-                </p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Write Review Button or Form */}
         <div className="mt-12 text-center">
           {!showForm ? (
             <button
-              onClick={() => setShowForm(true)}
+              onClick={handleWriteReviewClick}
               className="bg-black text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-800 transition"
             >
               Write a Review
@@ -134,13 +154,6 @@ const Testimonials = () => {
           ) : (
             <div className="bg-white rounded-2xl p-8 border border-gray-100 max-w-2xl mx-auto">
               <h3 className="text-xl font-bold text-black mb-4">Write a Review</h3>
-              <input
-                type="text"
-                placeholder="Your Name"
-                value={newReview.user}
-                onChange={(e) => setNewReview({ ...newReview, user: e.target.value })}
-                className="w-full border border-gray-300 p-3 rounded mb-4"
-              />
               <textarea
                 placeholder="Your Experience"
                 value={newReview.comment}
@@ -178,9 +191,20 @@ const Testimonials = () => {
               </div>
             </div>
           )}
+
+          {/* Login Modal */}
+          {showLogin && (
+            <Login
+              onClose={() => setShowLogin(false)}
+              initialUserType="customer"
+              onSuccess={() => {
+                setShowLogin(false)
+                setShowForm(true)
+              }}
+            />
+          )}
         </div>
       </div>
-
     </section>
   )
 }
