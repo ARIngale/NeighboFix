@@ -2,35 +2,11 @@
 
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 
-const sampleData = [
-    {
-      _id: "1",
-      serviceName: "Plumber",
-      address: "123 Main Street, Pune",
-      preferredDate: "2025-06-20",
-      preferredTime: "10:00 AM",
-      status: "pending",
-    },
-    {
-      _id: "2",
-      serviceName: "Electrician",
-      address: "45 Sector 10, Mumbai",
-      preferredDate: "2025-06-22",
-      preferredTime: "2:30 PM",
-      status: "confirmed",
-    },
-    {
-      _id: "3",
-      serviceName: "AC Repair",
-      address: "Flat 501, Skyline Residency, Nagpur",
-      preferredDate: "2025-06-25",
-      preferredTime: "5:00 PM",
-      status: "completed",
-    },
-  ];
 
 const CustomerDashboard = () => {
+  const { user, token, updateUser } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [bookings, setBookings] = useState([]);
   const [reviews, setReviews] = useState([])
@@ -49,42 +25,99 @@ const CustomerDashboard = () => {
 
 
     useEffect(() => {
-        setBookings(sampleData);
+      fetchUserData();
         setReviews([
             { bookingId: "3", rating: 5, comment: "Excellent AC repair service." },
           ])
         
     },[])
 
+    const fetchUserData = async () => {
+      try {
+        const [bookingsRes, profileRes] = await Promise.all([
+          fetch(`${import.meta.env.VITE_API_URL}/users/bookings`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${import.meta.env.VITE_API_URL}/users/profile`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ])
+  
+        if (bookingsRes.ok && profileRes.ok) {
+          const bookingsData = await bookingsRes.json()
+          const profileData = await profileRes.json()
+  
+          setBookings(bookingsData)
+          setProfile({
+            name: profileData.name || "",
+            email: profileData.email || "",
+            phone: profileData.phone || "",
+            address: {
+              street: profileData.address?.street || "",
+              city: profileData.address?.city || "",
+              state: profileData.address?.state || "",
+              zipCode: profileData.address?.zipCode || "",
+            },
+          })
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error)
+      } finally {
+        // 
+      }
+    }
+
     const hasReviewed = (bookingId) => {
         return reviews.some((review) => review.bookingId === bookingId)
     }
 
-    const handleProfileUpdate = () => {
-        alert("updated")
-    }
-
-    const handleProfileChange = (e) => {
-        const { name, value } = e.target
-        if (name.includes("address.")) {
-          const addressField = name.split(".")[1]
-          setProfile((prev) => ({
-            ...prev,
-            address: {
-              ...prev.address,
-              [addressField]: value,
-            },
-          }))
+    const handleProfileUpdate = async (e) => {
+      e.preventDefault()
+      setUpdating(true)
+  
+      try {
+        const response = await fetch("http://localhost:5000/api/users/profile", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(profile),
+        })
+  
+        if (response.ok) {
+          const updatedProfile = await response.json()
+          updateUser(updatedProfile)
+          alert("Profile updated successfully!")
         } else {
-          setProfile((prev) => ({
-            ...prev,
-            [name]: value,
-          }))
+          alert("Failed to update profile")
         }
+      } catch (error) {
+        console.error("Error updating profile:", error)
+        alert("Failed to update profile")
+      } finally {
+        setUpdating(false)
       }
-
-      
-
+    }
+  
+    const handleProfileChange = (e) => {
+      const { name, value } = e.target
+      if (name.includes("address.")) {
+        const addressField = name.split(".")[1]
+        setProfile((prev) => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            [addressField]: value,
+          },
+        }))
+      } else {
+        setProfile((prev) => ({
+          ...prev,
+          [name]: value,
+        }))
+      }
+    }
     const getStatusColor = (status) => {
         switch (status) {
           case "completed":
