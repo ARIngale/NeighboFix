@@ -62,7 +62,7 @@ const ProviderDashboard = () => {
       
       const fetchFeedback = async () => {
         try {
-          const response = await fetch(`http://localhost:5000/api/reviews/provider/${user.id}`)
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews/provider/${user.id}`)
           const data = await response.json()
           setFeedback(data)
         } catch (error) {

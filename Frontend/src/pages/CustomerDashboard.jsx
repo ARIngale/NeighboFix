@@ -26,10 +26,7 @@ const CustomerDashboard = () => {
 
     useEffect(() => {
       fetchUserData();
-        setReviews([
-            { bookingId: "3", rating: 5, comment: "Excellent AC repair service." },
-          ])
-        
+      fetchReviews() 
     },[])
 
     const fetchUserData = async () => {
@@ -67,8 +64,28 @@ const CustomerDashboard = () => {
       }
     }
 
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/reviews/customer/${user.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (response.ok) {
+          const reviewsData = await response.json()
+          setReviews(reviewsData)
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error)
+      }
+    }
+  
+
+    const handleLeaveReview = (booking) => {
+      setSelectedBooking(booking)
+      setShowReviewModal(true)
+    }
+
     const hasReviewed = (bookingId) => {
-        return reviews.some((review) => review.bookingId === bookingId)
+      return reviews.some((review) => review.bookingId === bookingId)
     }
 
     const handleProfileUpdate = async (e) => {
