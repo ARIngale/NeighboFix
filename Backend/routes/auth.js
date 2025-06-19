@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken")
 const router = express.Router()
 const User = require("../models/User")
 const crypto = require("crypto")
+const nodemailer = require("nodemailer");
 
 // Register
 router.post("/register", async (req, res) => {
@@ -126,12 +127,28 @@ router.post("/forgot-password", async (req, res) => {
 
     await user.save()
 
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}&email=${email}`;
+
+    // Nodemailer config
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // Use app password, not raw password
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Password Reset Link",
+      html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+    });
+
     // In a real app, you would send an email here
     // For now, we'll just return the token (don't do this in production!)
-    res.json({
-      message: "Password reset token generated",
-      resetToken, // Remove this in production
-    })
+    res.json({ message: "Password reset email sent" });
+
   } catch (error) {
     res.status(500).json({ message: error.message })
   }

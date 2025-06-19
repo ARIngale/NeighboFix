@@ -94,7 +94,7 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
     setMessage("")
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}auth/forgot-password`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

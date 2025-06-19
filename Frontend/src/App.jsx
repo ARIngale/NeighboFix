@@ -11,6 +11,7 @@ import CustomerDashboard from './pages/CustomerDashboard'
 import ProviderDashboard from './pages/ProviderDashboard'
 import { AuthProvider } from "./context/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
+import ResetPassword from "./pages/ResetPassword"
 
 function App() {
 
@@ -41,6 +42,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
           <Footer />
         </div>
