@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useAuth } from "../context/AuthContext"
 import { useNavigate } from "react-router-dom"
 
 const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
@@ -24,6 +25,7 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState("")
 
+  const { login, register } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -57,7 +59,30 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
     setLoading(true)
     setError("")
 
-    navigate(userType === "customer" ? "/customer-dashboard" : "/provider-dashboard")
+    try {
+      let result
+      if (isLogin) {
+        result = await login(formData.email, formData.password, userType)
+      } else {
+        result = await register({
+          ...formData,
+          role: userType,
+        })
+      }
+
+      if (result.success) {
+        onClose()
+        if (redirectPath) {
+          navigate(redirectPath)
+        } else {
+          navigate(userType === "customer" ? "/customer-dashboard" : "/provider-dashboard")
+        }
+      } else {
+        setError(result.message)
+      }
+    } catch (error) {
+      setError("Something went wrong. Please try again.")
+    }
 
     setLoading(false)
   }
@@ -68,8 +93,29 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
     setError("")
     setMessage("")
 
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/forgot-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(forgotPasswordData),
+      })
 
-    setMessage("Password reset instructions have been sent to your email.")
+      const data = await response.json()
+
+      if (response.ok) {
+        setMessage("Password reset instructions have been sent to your email.")
+        setTimeout(() => {
+          setShowForgotPassword(false)
+          setMessage("")
+        }, 3000)
+      } else {
+        setError(data.message)
+      }
+    } catch (error) {
+      setError("Failed to send reset email. Please try again.")
+    }
 
     setLoading(false)
   }
