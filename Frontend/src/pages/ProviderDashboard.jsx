@@ -16,32 +16,7 @@ const ProviderDashboard = () => {
       category: "",
     })
     const [analytics, setAnalytics] = useState({})
-    const [bookings, setBookings] = useState([
-        {
-          _id: "1",
-          serviceName: "Plumbing Repair",
-          description: "Fix leaking kitchen pipe.",
-          customerName: "Rahul Sharma",
-          customerPhone: "9876543210",
-          customerEmail: "rahul@example.com",
-          preferredDate: new Date().toISOString(),
-          preferredTime: "10:00 AM",
-          address: "123 MG Road, Pune",
-          status: "pending", // other statuses: confirmed, in-progress, completed, cancelled
-        },
-        {
-          _id: "2",
-          serviceName: "Electrical Fix",
-          description: "Repair bedroom fan.",
-          customerName: "Sneha Desai",
-          customerPhone: "9123456780",
-          customerEmail: "sneha@example.com",
-          preferredDate: new Date().toISOString(),
-          preferredTime: "2:00 PM",
-          address: "456 JM Road, Pune",
-          status: "confirmed",
-        },
-      ])
+    const [bookings, setBookings] = useState([])
       const [showPaymentModal, setShowPaymentModal] = useState(false)
       const [selectedBooking, setSelectedBooking] = useState(null)
       const [feedback, setFeedback] = useState([])
@@ -55,14 +30,28 @@ const ProviderDashboard = () => {
         fetchProviderData()
       }, [])
 
+
       const fetchProviderData = async () => {
         try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/services/provider/${user.id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-      
-          const data = await response.json()
-          setServices(data)
+          const [analyticsRes, bookingsRes, servicesRes] = await Promise.all([
+            fetch(`${import.meta.env.VITE_API_URL}/users/analytics`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`${import.meta.env.VITE_API_URL}/users/bookings`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+            fetch(`${import.meta.env.VITE_API_URL}/services/provider/${user.id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            }),
+          ])
+    
+          const analyticsData = await analyticsRes.json()
+          const bookingsData = await bookingsRes.json()
+          const servicesData = await servicesRes.json()
+    
+          setAnalytics(analyticsData)
+          setBookings(bookingsData)
+          setServices(servicesData)
         } catch (error) {
           console.error("Error fetching provider data:", error)
         } finally {
