@@ -2,91 +2,51 @@
 
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
+import Login from "./Login"
 
-// Sample static services data
-const servicesData = [
-  {
-    "_id": "1",
-    "name": "Electrician Service",
-    "description": "Get expert help for all your home electrical needs, from wiring to appliance repair.",
-    "basePrice": 299,
-    "icon": "🔌",
-    "providerName": "Rajesh Kumar",
-    "rating": 4.8,
-    "totalReviews": 124,
-    "category": "Electrical"
-  },
-  {
-    "_id": "2",
-    "name": "Plumbing Service",
-    "description": "Professional plumbing solutions for leaks, blockages, installations, and more.",
-    "basePrice": 349,
-    "icon": "🚰",
-    "providerName": "Anjali Verma",
-    "rating": 4.5,
-    "totalReviews": 98,
-    "category": "Plumbing"
-  },
-  {
-    "_id": "3",
-    "name": "AC Repair & Service",
-    "description": "Keep your AC running cool with expert repair and maintenance services.",
-    "basePrice": 499,
-    "icon": "❄️",
-    "providerName": "Suresh Patil",
-    "rating": 4.7,
-    "totalReviews": 76,
-    "category": "Appliance"
-  },
-  {
-    "_id": "4",
-    "name": "Carpentry",
-    "description": "Furniture repair, custom fittings, and all woodwork handled by pros.",
-    "basePrice": 399,
-    "icon": "🪚",
-    "providerName": "Meena Joshi",
-    "rating": 4.6,
-    "totalReviews": 82,
-    "category": "Carpentry"
-  },
-  {
-    "_id": "5",
-    "name": "Home Cleaning",
-    "description": "Deep cleaning services for your entire home, kitchen, bathrooms, and more.",
-    "basePrice": 599,
-    "icon": "🧼",
-    "providerName": "Deepak Singh",
-    "rating": 4.9,
-    "totalReviews": 150,
-    "category": "Cleaning"
-  },
-  {
-    "_id": "6",
-    "name": "Gardening Service",
-    "description": "Beautify your garden with expert plant care, lawn trimming, and design.",
-    "basePrice": 449,
-    "icon": "🌿",
-    "providerName": "Priya Sharma",
-    "rating": 0,
-    "totalReviews": 0,
-    "category": "Gardening"
-  }
-]
 
 const ServicePreview = () => {
   const [services, setServices] = useState([])
+  const [showLogin, setShowLogin] = useState(false)
+  const [redirectPath, setRedirectPath] = useState("")
+  const { user } = useAuth()
 
   // Load services on component mount
   useEffect(() => {
-    setServices(servicesData)
+    fetchServices()
   }, [])
 
-  const handleBookClick = (id) => {
-    console.log(`Book Now clicked for service ID: ${id}`)
-    // Implement navigation or booking logic here
+  const fetchServices = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/services`)
+      const data = await response.json()
+      setServices(data.slice(0, 6)) // Show only first 6 services
+    } catch (error) {
+      console.error("Error fetching services:", error)
+    } finally {
+      // 
+    }
+  }
+
+  const handleBookClick = (serviceId) => {
+    if (!user) {
+      setRedirectPath(`/book/${serviceId}`)
+      setShowLogin(true)
+      return
+    }
+
+    if (user.role !== "customer") {
+      alert("Only customers can book services. Please login with a customer account.")
+      return
+    }
+
+    // User is authenticated and is a customer, proceed to booking
+    window.location.href = `/book/${serviceId}`
   }
 
   return (
+    <> 
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
@@ -181,6 +141,10 @@ const ServicePreview = () => {
         </div>
       </div>
     </section>
+    {showLogin && (
+      <Login onClose={() => setShowLogin(false)} initialUserType="customer" redirectPath={redirectPath} />
+    )}
+    </>
   )
 }
 

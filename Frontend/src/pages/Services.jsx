@@ -1,75 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-
-// Static services data
-const servicesData = [
-  {
-    _id: "1",
-    name: "Electrician Service",
-    description: "Get expert help for all your home electrical needs, from wiring to appliance repair.",
-    basePrice: 299,
-    icon: "🔌",
-    providerName: "Rajesh Kumar",
-    rating: 4.8,
-    totalReviews: 124,
-    category: "Electrical",
-  },
-  {
-    _id: "2",
-    name: "Plumbing Service",
-    description: "Professional plumbing solutions for leaks, blockages, installations, and more.",
-    basePrice: 349,
-    icon: "🚰",
-    providerName: "Anjali Verma",
-    rating: 4.5,
-    totalReviews: 98,
-    category: "Plumbing",
-  },
-  {
-    _id: "3",
-    name: "AC Repair & Service",
-    description: "Keep your AC running cool with expert repair and maintenance services.",
-    basePrice: 499,
-    icon: "❄️",
-    providerName: "Suresh Patil",
-    rating: 4.7,
-    totalReviews: 76,
-    category: "Appliance",
-  },
-  {
-    _id: "4",
-    name: "Carpentry",
-    description: "Furniture repair, custom fittings, and all woodwork handled by pros.",
-    basePrice: 399,
-    icon: "🪚",
-    providerName: "Meena Joshi",
-    rating: 4.6,
-    totalReviews: 82,
-    category: "Carpentry",
-  },
-  {
-    _id: "5",
-    name: "Home Cleaning",
-    description: "Deep cleaning services for your entire home, kitchen, bathrooms, and more.",
-    basePrice: 599,
-    icon: "🧼",
-    providerName: "Deepak Singh",
-    rating: 4.9,
-    totalReviews: 150,
-    category: "Cleaning",
-  },
-  {
-    _id: "6",
-    name: "Gardening Service",
-    description: "Beautify your garden with expert plant care, lawn trimming, and design.",
-    basePrice: 449,
-    icon: "🌿",
-    providerName: "Priya Sharma",
-    rating: 0,
-    totalReviews: 0,
-    category: "Gardening",
-  },
-];
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"
+import Login from "../components/Login"
 
 const Services = () => {
 
@@ -79,15 +11,32 @@ const Services = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [priceRange, setPriceRange] = useState("All");
   const [sortBy, setSortBy] = useState("name");
+  const [showLogin, setShowLogin] = useState(false)
+  const [redirectService, setRedirectService] = useState(null)
+
+  const { user } = useAuth()
+  const navigate = useNavigate()
 
   useEffect(() => {
-    setServices(servicesData);
+    fetchServices()
   }, []);
 
   useEffect(() => {
     filterAndSortServices();
   }, [services, selectedCategory, searchTerm, priceRange, sortBy]);
 
+  const fetchServices = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/services`)
+      const data = await response.json()
+      setServices(data)
+      setFilteredServices(data)
+    } catch (error) {
+      console.error("Error fetching services:", error)
+    } finally {
+      // 
+    }
+  }
   const filterAndSortServices = () => {
     let filtered = [...services];
 
@@ -127,9 +76,23 @@ const Services = () => {
     setFilteredServices(filtered);
   };
 
-  const handleBookClick = (serviceId) => {
-    alert("Service booked")
-  };
+  const handleBookNow = (serviceId) => {
+    if (!user) {
+      setRedirectService(serviceId)
+      setShowLogin(true)
+    } else {
+      navigate(`/book/${serviceId}`)
+    }
+  }
+
+  const handleLoginSuccess = () => {
+    setShowLogin(false)
+    if (redirectService) {
+      navigate(`/book/${redirectService}`)
+      setRedirectService(null)
+    }
+  }
+
 
   const categories = ["All", ...new Set(services.map((s) => s.category))];
 
@@ -262,7 +225,7 @@ const Services = () => {
                       {service.category}
                     </span>
                     <button
-                      onClick={() => handleBookClick(service._id)}
+                      onClick={() => handleBookNow(service._id)}
                       className="px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800"
                     >
                       Book Now
@@ -305,6 +268,17 @@ const Services = () => {
           </div>
         </div>
       </div>
+      {/* Login Modal */}
+      {showLogin && (
+        <Login
+          onClose={() => {
+            setShowLogin(false)
+            setRedirectService(null)
+          }}
+          initialUserType="customer"
+          onSuccess={handleLoginSuccess}
+        />
+      )}
     </div>
   );
 };
