@@ -10,6 +10,7 @@ import Footer from "./components/Footer"
 import CustomerDashboard from './pages/CustomerDashboard'
 import ProviderDashboard from './pages/ProviderDashboard'
 import { AuthProvider } from "./context/AuthContext"
+import ProtectedRoute from "./components/ProtectedRoute"
 
 function App() {
 
@@ -24,9 +25,23 @@ function App() {
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/why-choose-us" element={<WhyChooseUs />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/customer-dashboard" element={<CustomerDashboard /> } />
-              <Route path="/provider-dashboard" element={ <ProviderDashboard /> } />
-          </Routes>
+              <Route
+              path="/customer-dashboard"
+              element={
+                <ProtectedRoute requiredRole="customer">
+                  <CustomerDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/provider-dashboard"
+              element={
+                <ProtectedRoute requiredRole="provider">
+                  <ProviderDashboard />
+                </ProtectedRoute>
+              }
+            />
+            </Routes>
           <Footer />
         </div>
       </Router>
