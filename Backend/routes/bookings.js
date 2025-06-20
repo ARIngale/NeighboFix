@@ -5,6 +5,7 @@ const Service = require("../models/Service")
 const Payment = require("../models/Payment")
 const auth = require("../middleware/auth")
 const PlatformEarnings = require("../models/PlatformEarnings") 
+const { createNotification } = require("./notifications")
 
 // Get bookings (filtered by user role)
 router.get("/", auth, async (req, res) => {
@@ -51,6 +52,16 @@ router.post("/", auth, async (req, res) => {
       .populate("serviceId")
       .populate("providerId", "name businessName phone email")
 
+      await createNotification(
+        service.providerId,
+        "New Booking Request",
+        `You have a new booking request for ${service.name}`,
+        "booking",
+        newBooking._id,
+        "Booking",
+        `/provider-dashboard?tab=bookings`,
+        "high",
+      )
     res.status(201).json(populatedBooking)
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -91,7 +102,16 @@ router.patch("/:id", auth, async (req, res) => {
       })
       await payment.save()
     }
-
+    await createNotification(
+      recipientId,
+      "Booking Status Update",
+      message,
+      "status_update",
+      booking._id,
+      "Booking",
+      `/dashboard?tab=bookings`,
+      "high",
+    )
     res.json(updatedBooking)
   } catch (error) {
     res.status(400).json({ message: error.message })
@@ -149,6 +169,17 @@ router.post("/:id/complete", auth, async (req, res) => {
     })
 
     await platformEarning.save()
+
+    await createNotification(
+      booking.customerId,
+      "Service Completed",
+      `Your ${booking.serviceName} service has been completed successfully`,
+      "booking",
+      booking._id,
+      "Booking",
+      `/dashboard?tab=bookings`,
+      "high",
+    )
 
     const populatedBooking = await Booking.findById(booking._id)
       .populate("serviceId")
