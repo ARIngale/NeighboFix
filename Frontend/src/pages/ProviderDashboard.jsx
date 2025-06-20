@@ -143,13 +143,26 @@ const ProviderDashboard = () => {
       }
 
 
-      const handleBookingAction = (id, newStatus) => {
-        const updatedBookings = bookings.map((booking) =>
-          booking._id === id ? { ...booking, status: newStatus } : booking
-        )
-        setBookings(updatedBookings)
+      const handleBookingAction = async (bookingId, action) => {
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${bookingId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status: action }),
+          })
+    
+          if (response.ok) {
+            fetchProviderData() // Refresh data
+            alert(`Booking ${action} successfully!`)
+          }
+        } catch (error) {
+          console.error("Error updating booking:", error)
+        }
       }
-
+    
       const getStatusColor = (status) => {
         switch (status) {
           case "completed":
@@ -178,11 +191,30 @@ const ProviderDashboard = () => {
     }
 
     const handlePaymentSubmit = async (e) => {
-        e.preventDefault()
-        setShowPaymentModal(false)
-        setSelectedBooking(null)
-        alert("Service completed and payment recorded successfully!")
-
+      e.preventDefault()
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${selectedBooking._id}/complete`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(paymentForm),
+        })
+  
+        if (response.ok) {
+          const result = await response.json()
+          setShowPaymentModal(false)
+          setSelectedBooking(null)
+          fetchProviderData()
+          alert("Service completed and payment recorded successfully!")
+        } else {
+          alert("Failed to complete service")
+        }
+      } catch (error) {
+        console.error("Error completing service:", error)
+        alert("Failed to complete service")
+      }
     }
     
     const generateInsights = () => {
