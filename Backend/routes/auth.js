@@ -8,6 +8,9 @@ const nodemailer = require("nodemailer");
 // Register
 router.post("/register", async (req, res) => {
   try {
+    if(req.body.role === "admin"){
+      return res.status(400).json({ message: `Cannot register as Admin` })
+    }
     const { name, email, password, phone, role, businessName, businessDescription } = req.body
 
     // Check if user already exists with same email and role
