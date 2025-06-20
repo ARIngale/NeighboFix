@@ -11,6 +11,8 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
   const [contactMessages, setContactMessages] = useState([])
+  const [showModal,setShowModal]=useState(false)
+  const [selectedMessage, setSelectedMessage] = useState("");
 
   useEffect(() => {
     fetchAnalytics()
@@ -18,6 +20,25 @@ const AdminDashboard = () => {
     fetchProviderEarnings()
     fetchContactMessages()
   }, [])
+
+  const openModal =async (message, id, status)  => {
+    setSelectedMessage(message);
+    setShowModal(true);
+    if (status === "new") {
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL}/contact/${id}/read`, {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        fetchContactMessages(); // Refresh messages to reflect status change
+      } catch (error) {
+        console.error("Error marking message as read:", error);
+      }
+    }
+  };
+  
 
   const fetchAnalytics = async () => {
     try {
@@ -65,25 +86,46 @@ const AdminDashboard = () => {
     }
   }
 
+
   const fetchContactMessages = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
       if (res.ok) {
-        const data = await res.json()
-        setContactMessages(data)
+        const data = await res.json();
+        setContactMessages(data);
       } else {
-        console.error("Failed to fetch contact messages")
+        console.error("Failed to fetch contact messages");
       }
     } catch (error) {
-      console.error("Error fetching contact messages:", error)
+      console.error("Error fetching contact messages:", error);
     }
-  }
-  
+  };
 
+  const markAsResponded = async (id, responseMessage) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/contact/${id}/respond`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ responseMessage }),
+      });
+  
+      if (res.ok) {
+        fetchContactMessages();
+      } else {
+        console.error("Failed to respond");
+      }
+    } catch (error) {
+      console.error("Error responding to contact:", error);
+    }
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -96,6 +138,7 @@ const AdminDashboard = () => {
   }
 
   return (
+    <>
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
@@ -394,14 +437,47 @@ const AdminDashboard = () => {
                         </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                        {contactMessages.map((msg) => (
+                          {contactMessages.map((msg) => (
                             <tr key={msg._id}>
-                            <td className="px-6 py-4 text-sm">{msg.name}</td>
-                            <td className="px-6 py-4 text-sm text-blue-600">{msg.email}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{msg.message}</td>
-                            <td className="px-6 py-4 text-sm text-gray-500">{new Date(msg.createdAt).toLocaleString()}</td>
+                              <td className="px-6 py-4 text-sm">{msg.name}</td>
+                              <td className="px-6 py-4 text-sm text-blue-600">{msg.email}</td>
+                              <td className="px-6 py-4 text-sm">
+                                <button
+                                  onClick={() => openModal(msg.message, msg._id, msg.status)}
+                                  className="text-blue-600 underline text-sm"
+                                >
+                                  View
+                                </button>
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-500">{new Date(msg.createdAt).toLocaleString()}</td>
+                              <td className="px-6 py-4 text-sm">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    msg.status === "new"
+                                      ? "bg-yellow-100 text-yellow-800"
+                                      : msg.status === "read"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : "bg-green-100 text-green-800"
+                                  }`}
+                                >
+                                  {msg.status}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-sm">
+                                {msg.status !== "responded" && (
+                                  <button
+                                    className="bg-green-600 text-white px-3 py-1 rounded"
+                                    onClick={() => {
+                                      const reply = prompt(`Type your response to ${msg.email}:`)
+                                      if (reply) markAsResponded(msg._id, reply)
+                                    }}
+                                  >
+                                    Respond
+                                  </button>
+                                )}
+                              </td>
                             </tr>
-                        ))}
+                          ))}
                         </tbody>
                     </table>
                     </div>
@@ -410,7 +486,29 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+      
+
     </div>
+    {showModal && (
+      <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+        <div className="bg-white p-6 rounded-lg shadow-lg max-w-xl w-full mx-4">
+        <h2 className="text-lg font-semibold mb-4">Full Message</h2>
+        <div className="max-h-64 overflow-y-auto text-gray-800 whitespace-pre-wrap text-sm border p-2 rounded">
+          {selectedMessage}
+        </div>
+        <div className="mt-4 text-right">
+          <button
+            onClick={() => setShowModal(false)}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            Close
+          </button>
+        </div>
+    </div>
+  </div>
+)}
+
+    </>
   )
 }
 
