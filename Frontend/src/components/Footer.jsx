@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom"
+import AdminLogin from "./AdminLogin"
+import {useState} from 'react'
 
 const Footer = () => {
+  const [showAdminLogin, setShowAdminLogin] = useState(false)
+
   return (
     <footer className="bg-black text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -53,6 +57,15 @@ const Footer = () => {
                   Contact
                 </Link>
               </li>
+              <li>
+  <button
+    onClick={() => setShowAdminLogin(true)}
+    className="text-gray-300 hover:text-white transition-colors"
+  >
+    Admin Login
+  </button>
+</li>
+
             </ul>
           </div>
 
@@ -76,6 +89,7 @@ const Footer = () => {
           <p className="text-gray-300">© 2024 NeighboFix. All rights reserved.</p>
         </div>
       </div>
+      {showAdminLogin && <AdminLogin onClose={() => setShowAdminLogin(false)} />}
     </footer>
   )
 }
