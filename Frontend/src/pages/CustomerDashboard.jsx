@@ -190,19 +190,20 @@ const CustomerDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-black">Welcome back,User</h1>
+              <h1 className="text-2xl font-bold text-black">Welcome back, User</h1>
               <p className="text-gray-600">Manage your bookings and profile</p>
             </div>
             <Link
               to="/services"
-              className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+              className="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition-colors w-full lg:w-auto text-center"
             >
               Book New Service
             </Link>
           </div>
         </div>
+
 
         {/* Navigation Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
@@ -355,24 +356,26 @@ const CustomerDashboard = () => {
 
                         {booking.status === "completed" && (
                           <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="flex items-center justify-between">
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                               <div className="text-sm text-green-600 font-medium">
                                 ✅ Service completed successfully!
                               </div>
-                              <div className="space-x-2">
+
+                              <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
                                 {!hasReviewed(booking._id) ? (
                                   <button
                                     onClick={() => handleLeaveReview(booking)}
-                                    className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors text-sm"
+                                    className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors text-sm w-full sm:w-auto"
                                   >
                                     Leave Review
                                   </button>
                                 ) : (
                                   <span className="text-sm text-green-600 font-medium">✅ Reviewed</span>
                                 )}
+
                                 <Link
                                   to={`/book/${booking.serviceId}`}
-                                  className="border border-black text-black px-4 py-2 rounded hover:bg-black hover:text-white transition-colors text-sm inline-block"
+                                  className="border border-black text-black px-4 py-2 rounded hover:bg-black hover:text-white transition-colors text-sm w-full sm:w-auto text-center"
                                 >
                                   Book Again
                                 </Link>
@@ -380,6 +383,7 @@ const CustomerDashboard = () => {
                             </div>
                           </div>
                         )}
+
 
                         {booking.status === "in-progress" && (
                           <div className="mt-4 pt-4 border-t border-gray-200">

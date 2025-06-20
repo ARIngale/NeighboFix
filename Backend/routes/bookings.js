@@ -76,44 +76,68 @@ router.patch("/:id", auth, async (req, res) => {
       return res.status(404).json({ message: "Booking not found" })
     }
 
-    // Check permissions
+    // Permission check
     if (req.user.role === "customer" && booking.customerId.toString() !== req.user.userId) {
       return res.status(403).json({ message: "Access denied" })
     }
+
     if (req.user.role === "provider" && booking.providerId.toString() !== req.user.userId) {
       return res.status(403).json({ message: "Access denied" })
     }
 
+    // Update booking fields
     Object.keys(req.body).forEach((key) => {
       booking[key] = req.body[key]
     })
 
     const updatedBooking = await booking.save()
-    
-    // If booking is completed, create payment record
+
+    // === Create Payment if Completed ===
     if (req.body.status === "completed" && req.user.role === "provider") {
       const payment = new Payment({
         bookingId: booking._id,
         customerId: booking.customerId,
         providerId: booking.providerId,
         amount: booking.totalAmount || 75,
-        paymentMethod: "cash", // Default for now
-        paymentStatus: "pending"
+        paymentMethod: "cash",
+        paymentStatus: "pending",
       })
       await payment.save()
+
+      // Notify customer
+      await createNotification(
+        booking.customerId,
+        "Booking Completed",
+        `Your booking with ${req.user.name} has been marked as completed.`,
+        "status_update",
+        booking._id,
+        "Booking",
+        "/customer-dashboard?tab=bookings",
+        "high"
+      )
     }
-    await createNotification(
-      recipientId,
-      "Booking Status Update",
-      message,
-      "status_update",
-      booking._id,
-      "Booking",
-      `/dashboard?tab=bookings`,
-      "high",
-    )
+
+    // === Other status update notification ===
+    if (req.body.status && req.body.status !== "completed") {
+      const recipientId = req.user.role === "provider" ? booking.customerId : booking.providerId
+      const dashboardPath = req.user.role === "provider" ? "customer-dashboard" : "provider-dashboard"
+      const statusText = req.body.status.charAt(0).toUpperCase() + req.body.status.slice(1)
+
+      await createNotification(
+        recipientId,
+        "Booking Status Update",
+        `Booking status updated to "${statusText}" by ${req.user.name}.`,
+        "status_update",
+        booking._id,
+        "Booking",
+        `/${dashboardPath}?tab=bookings`,
+        "medium"
+      )
+    }
+
     res.json(updatedBooking)
   } catch (error) {
+    console.error("Error updating booking:", error)
     res.status(400).json({ message: error.message })
   }
 })
