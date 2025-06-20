@@ -6,56 +6,52 @@ const auth = require("../middleware/auth")
 
 // Get all services (public)
 router.get("/", async (req, res) => {
-    try {
-      const { category, search, minPrice, maxPrice, sortBy } = req.query
-  
-      const query = { isActive: true }
-  
-      if (category && category !== "all") {
-        query.category = category
-      }
-  
-      if (search) {
-        query.$or = [
-          { name: { $regex: search, $options: "i" } },
-          { description: { $regex: search, $options: "i" } },
-        ]
-      }
-  
-      if (minPrice || maxPrice) {
-        query.basePrice = {}
-        if (minPrice) query.basePrice.$gte = Number(minPrice)
-        if (maxPrice) query.basePrice.$lte = Number(maxPrice)
-      }
-  
-      const sortOptions = {}
-      switch (sortBy) {
-        case "price_low":
-          sortOptions.basePrice = 1
-          break
-        case "price_high":
-          sortOptions.basePrice = -1
-          break
-        case "rating":
-          sortOptions.rating = -1
-          break
-        case "newest":
-          sortOptions.createdAt = -1
-          break
-        default:
-          sortOptions.createdAt = -1
-      }
-  
-      const services = await Service.find(query)
-        .populate("providerId", "name businessName rating totalReviews isVerified")
-        .sort(sortOptions)
-  
-      res.json(services)
-    } catch (error) {
-      res.status(500).json({ message: error.message })
+  try {
+    const { category, search, minPrice, maxPrice, sortBy } = req.query
+
+    const query = { isActive: true }
+
+    if (category && category !== "all") {
+      query.category = category
     }
-  })
-  
+
+    if (search) {
+      query.$or = [{ name: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }]
+    }
+
+    if (minPrice || maxPrice) {
+      query.basePrice = {}
+      if (minPrice) query.basePrice.$gte = Number.parseInt(minPrice)
+      if (maxPrice) query.basePrice.$lte = Number.parseInt(maxPrice)
+    }
+
+    const sortOptions = {}
+    switch (sortBy) {
+      case "price_low":
+        sortOptions.basePrice = 1
+        break
+      case "price_high":
+        sortOptions.basePrice = -1
+        break
+      case "rating":
+        sortOptions.rating = -1
+        break
+      case "newest":
+        sortOptions.createdAt = -1
+        break
+      default:
+        sortOptions.createdAt = -1
+    }
+
+    const services = await Service.find(query)
+      .populate("providerId", "name businessName rating totalReviews isVerified")
+      .sort(sortOptions)
+    res.json(services)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
 // Get service by ID
 router.get("/:id", async (req, res) => {
   try {
