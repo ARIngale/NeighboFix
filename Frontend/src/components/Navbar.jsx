@@ -61,7 +61,13 @@ const Navbar = () => {
               {user ? (
                 <div className="flex items-center space-x-4">
                   <Link
-                    to={user.role === "customer" ? "/customer-dashboard" : "/provider-dashboard"}
+                    to={
+                      user.role === "customer"
+                        ? "/customer-dashboard"
+                        : user.role === "provider"
+                        ? "/provider-dashboard"
+                        : "/admin"
+                    }                    
                     className="flex items-center space-x-2 text-gray-700 hover:text-black px-3 py-2 text-sm font-medium"
                   >
                     <div className="w-8 h-8 bg-black text-white rounded-full flex items-center justify-center text-sm font-bold">
@@ -144,7 +150,13 @@ const Navbar = () => {
                     </div>
                   </div>
                   <Link
-                    to={user.role === "customer" ? "/customer-dashboard" : "/provider-dashboard"}
+                    to={
+                      user.role === "customer"
+                        ? "/customer-dashboard"
+                        : user.role === "provider"
+                        ? "/provider-dashboard"
+                        : "/admin"
+                    }                    
                     className="block text-gray-700 hover:text-black hover:bg-gray-50 px-3 py-3 text-base font-medium rounded-lg"
                     onClick={() => setIsOpen(false)}
                   >

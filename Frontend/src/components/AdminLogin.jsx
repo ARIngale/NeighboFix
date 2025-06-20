@@ -2,13 +2,14 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
 
 const AdminLogin = ({ onClose }) => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-
+  const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
@@ -16,26 +17,13 @@ const AdminLogin = ({ onClose }) => {
     setLoading(true)
     setError("")
 
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password, role: "admin" }),
-      })
+    const result = await login(email, password, "admin")
 
-      const data = await response.json()
-
-      if (response.ok && data.success) {
-        localStorage.setItem("token", data.token) // optional: store token
-        onClose()
-        navigate("/admin-dashboard")
-      } else {
-        setError(data.message || "Invalid credentials")
-      }
-    } catch (err) {
-      setError("Something went wrong. Please try again.")
+    if (result.success) {
+      onClose()
+      navigate("/admin")
+    } else {
+      setError(result.message || "Invalid credentials")
     }
 
     setLoading(false)
@@ -56,9 +44,7 @@ const AdminLogin = ({ onClose }) => {
         <div className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
                 id="email"
@@ -67,14 +53,11 @@ const AdminLogin = ({ onClose }) => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black transition text-black"
                 placeholder="admin@example.com"
-                />
-
+              />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <input
                 type="password"
                 id="password"
@@ -83,14 +66,11 @@ const AdminLogin = ({ onClose }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black transition text-black"
                 placeholder="••••••••"
-                />
-
+              />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg">
-                {error}
-              </div>
+              <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-3 rounded-lg">{error}</div>
             )}
 
             <button
