@@ -1,10 +1,14 @@
 const express = require("express")
 const router = express.Router()
 const Contact = require("../models/Contact")
+const auth = require("../middleware/auth")
 
 // Get all contact messages
-router.get("/", async (req, res) => {
+router.get("/",auth, async (req, res) => {
   try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Only Admin can access this endpoint" })
+    }
     const contacts = await Contact.find().sort({ createdAt: -1 })
     res.json(contacts)
   } catch (error) {

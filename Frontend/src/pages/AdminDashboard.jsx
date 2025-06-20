@@ -10,11 +10,13 @@ const AdminDashboard = () => {
   const [providerEarnings, setProviderEarnings] = useState([])
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
+  const [contactMessages, setContactMessages] = useState([])
 
   useEffect(() => {
     fetchAnalytics()
     fetchMonthlyData()
     fetchProviderEarnings()
+    fetchContactMessages()
   }, [])
 
   const fetchAnalytics = async () => {
@@ -62,6 +64,25 @@ const AdminDashboard = () => {
       console.error("Error fetching provider earnings:", error)
     }
   }
+
+  const fetchContactMessages = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setContactMessages(data)
+      } else {
+        console.error("Failed to fetch contact messages")
+      }
+    } catch (error) {
+      console.error("Error fetching contact messages:", error)
+    }
+  }
+  
 
   if (loading) {
     return (
@@ -134,6 +155,7 @@ const AdminDashboard = () => {
                 { id: "earnings", label: "Monthly Earnings" },
                 { id: "providers", label: "Provider Earnings" },
                 { id: "transactions", label: "Recent Transactions" },
+                { id: "contacts", label: "Contact Messages" }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -356,6 +378,35 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
+
+            {/* Contact messages tab */}
+            {activeTab === "contacts" && (
+                <div className="space-y-6">
+                    <h3 className="text-lg font-semibold text-black">Contact Messages</h3>
+                    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                        </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                        {contactMessages.map((msg) => (
+                            <tr key={msg._id}>
+                            <td className="px-6 py-4 text-sm">{msg.name}</td>
+                            <td className="px-6 py-4 text-sm text-blue-600">{msg.email}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{msg.message}</td>
+                            <td className="px-6 py-4 text-sm text-gray-500">{new Date(msg.createdAt).toLocaleString()}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+                )}
           </div>
         </div>
       </div>
