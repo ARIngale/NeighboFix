@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
-
+import ReviewModal from "../components/ReviewModal"
 
 const CustomerDashboard = () => {
   const { user, token, updateUser } = useAuth()
@@ -22,7 +22,8 @@ const CustomerDashboard = () => {
     },
   })
   const [updating, setUpdating] = useState(false)
-
+  const [showReviewModal, setShowReviewModal] = useState(false)
+  const [selectedBooking, setSelectedBooking] = useState(null)
 
     useEffect(() => {
       fetchUserData();
@@ -86,6 +87,10 @@ const CustomerDashboard = () => {
 
     const hasReviewed = (bookingId) => {
       return reviews.some((review) => review.bookingId === bookingId)
+    }
+    const handleReviewSuccess = () => {
+      fetchUserData() // Refresh bookings
+      fetchReviews() // Refresh reviews
     }
 
     const handleProfileUpdate = async (e) => {
@@ -573,7 +578,17 @@ const CustomerDashboard = () => {
           </div>
         </div>
       </div>
-
+      {/* Review Modal */}
+      {showReviewModal && selectedBooking && (
+        <ReviewModal
+          booking={selectedBooking}
+          onClose={() => {
+            setShowReviewModal(false)
+            setSelectedBooking(null)
+          }}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   )
 }
