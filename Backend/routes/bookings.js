@@ -4,6 +4,7 @@ const Booking = require("../models/Booking")
 const Service = require("../models/Service")
 const Payment = require("../models/Payment")
 const auth = require("../middleware/auth")
+const PlatformEarnings = require("../models/PlatformEarnings") 
 
 // Get bookings (filtered by user role)
 router.get("/", auth, async (req, res) => {
@@ -113,17 +114,41 @@ router.post("/:id/complete", auth, async (req, res) => {
     booking.status = "completed"
     await booking.save()
 
+    // Prepare amount and payment method
+    const amount = req.body.amount || booking.totalAmount || 75
+    const paymentMethod = req.body.paymentMethod || "cash"
+
     // Create payment record
     const payment = new Payment({
       bookingId: booking._id,
       customerId: booking.customerId,
       providerId: booking.providerId,
-      amount: req.body.amount || booking.totalAmount || 75,
-      paymentMethod: req.body.paymentMethod || "cash",
-      paymentStatus: "completed"
+      amount,
+      paymentMethod,
+      paymentStatus: "completed",
     })
 
     await payment.save()
+
+    // Calculate commission and provider earnings
+    const commissionRate = 0.15 // 15%
+    const commissionAmount = amount * commissionRate
+    const providerAmount = amount - commissionAmount
+
+    // Create platform earnings record
+    const platformEarning = new PlatformEarnings({
+      bookingId: booking._id,
+      providerId: booking.providerId,
+      customerId: booking.customerId,
+      serviceAmount: amount,
+      commissionRate,
+      commissionAmount,
+      providerAmount,
+      paymentMethod,
+      status: "completed",
+    })
+
+    await platformEarning.save()
 
     const populatedBooking = await Booking.findById(booking._id)
       .populate("serviceId")
@@ -131,10 +156,12 @@ router.post("/:id/complete", auth, async (req, res) => {
 
     res.json({
       booking: populatedBooking,
-      payment: payment,
-      message: "Service completed successfully!"
+      payment,
+      platformEarning,
+      message: "Service completed and earnings recorded successfully!",
     })
   } catch (error) {
+    console.error("Error completing booking:", error)
     res.status(400).json({ message: error.message })
   }
 })

@@ -81,14 +81,21 @@ router.get("/services", auth, async (req, res) => {
     res.status(500).json({ message: error.message })
   }
 })
+const mongoose = require("mongoose")
 
 // Get analytics (providers only)
 // Get user analytics
 router.get("/analytics", auth, async (req, res) => {
   try {
     if (req.user.role === "provider") {
+      const providerObjectId = new mongoose.Types.ObjectId(req.user.userId)
+
       // Provider analytics with net earnings (after platform commission)
       const totalBookings = await Booking.countDocuments({ providerId: req.user.userId })
+      const activeBooking = await Booking.countDocuments({
+        providerId: req.user.userId,
+        status: { $in: ["pending", "confirmed", "in-progress"] }
+      })      
       const completedBookings = await Booking.countDocuments({
         providerId: req.user.userId,
         status: "completed",
@@ -96,7 +103,7 @@ router.get("/analytics", auth, async (req, res) => {
 
       // Get net earnings from platform earnings table
       const earningsData = await PlatformEarnings.aggregate([
-        { $match: { providerId: req.user.userId, status: "completed" } },
+        { $match: { providerId: providerObjectId } },
         {
           $group: {
             _id: null,
@@ -114,7 +121,7 @@ router.get("/analytics", auth, async (req, res) => {
       const monthlyEarnings = await PlatformEarnings.aggregate([
         {
           $match: {
-            providerId: req.user.userId,
+            providerId: providerObjectId,
             status: "completed",
             createdAt: { $gte: currentMonth },
           },
@@ -148,6 +155,7 @@ router.get("/analytics", auth, async (req, res) => {
       res.json({
         totalBookings,
         completedJobs: completedBookings,
+        activeJobs: activeBooking,
         totalEarnings: earningsData[0]?.totalEarnings || 0,
         totalGrossEarnings: earningsData[0]?.totalGross || 0,
         totalCommissionPaid: earningsData[0]?.totalCommission || 0,

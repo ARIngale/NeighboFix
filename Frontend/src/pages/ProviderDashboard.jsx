@@ -15,8 +15,8 @@ const ProviderDashboard = () => {
       basePrice: "",
       category: "",
     })
-    const [analytics, setAnalytics] = useState({})
-    const [bookings, setBookings] = useState([])
+      const [analytics, setAnalytics] = useState({})
+      const [bookings, setBookings] = useState([])
       const [showPaymentModal, setShowPaymentModal] = useState(false)
       const [selectedBooking, setSelectedBooking] = useState(null)
       const [feedback, setFeedback] = useState([])
@@ -258,11 +258,11 @@ const ProviderDashboard = () => {
               <div className="flex items-center space-x-4">
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Total Earnings</p>
-                  <p className="text-2xl font-bold text-green-600">${0}</p>
+                  <p className="text-2xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Rating</p>
-                  <p className="text-2xl font-bold text-black">{0} ⭐</p>
+                  <p className="text-2xl font-bold text-black">{analytics.averageRating || 0} ⭐</p>
                 </div>
               </div>
             </div>
@@ -305,9 +305,9 @@ const ProviderDashboard = () => {
                     <p className="text-3xl font-bold text-black">{analytics.completedJobs || 0}</p>
                   </div>
                   <div className="bg-gray-50 p-6 rounded-lg">
-                    <h3 className="text-lg font-semibold text-black mb-2">This Month</h3>
-                    <p className="text-3xl font-bold text-blue-600">{analytics.monthlyBookings || 0}</p>
-                  </div>
+                  <h3 className="text-lg font-semibold text-black mb-2">Active Bookings</h3>
+                  <p className="text-3xl font-bold text-blue-600">{analytics.activeJobs || 0}</p>
+                </div>
                   <div className="bg-gray-50 p-6 rounded-lg">
                     <h3 className="text-lg font-semibold text-black mb-2">Reviews</h3>
                     <p className="text-3xl font-bold text-yellow-600">{analytics.totalReviews || 0}</p>
