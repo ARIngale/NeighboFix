@@ -12,6 +12,7 @@ import ProviderDashboard from './pages/ProviderDashboard'
 import { AuthProvider } from "./context/AuthContext"
 import ProtectedRoute from "./components/ProtectedRoute"
 import ResetPassword from "./pages/ResetPassword"
+import BookingForm from "./components/BookingForm"
 
 function App() {
 
@@ -26,6 +27,14 @@ function App() {
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/why-choose-us" element={<WhyChooseUs />} />
               <Route path="/contact" element={<Contact />} />
+              <Route
+                path="/book/:serviceId"
+                element={
+                  <ProtectedRoute requiredRole="customer">
+                    <BookingForm />
+                  </ProtectedRoute>
+                }
+              />
               <Route
               path="/customer-dashboard"
               element={
