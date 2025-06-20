@@ -483,82 +483,88 @@ const ProviderDashboard = () => {
 
             {/* Analytics Tab */}
             {activeTab === "analytics" && (
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-black">Performance Analytics</h3>
+              <div className="space-y-8">
+                <h3 className="text-2xl font-bold text-gray-900">📊 Performance Dashboard</h3>
 
+                {/* Metrics Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <h4 className="text-lg font-semibold text-black mb-4">Booking Status</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
+                  {/* Booking Status */}
+                  <div className="bg-gradient-to-r from-indigo-100 to-blue-100 p-6 rounded-2xl shadow-md transition hover:shadow-xl">
+                    <h4 className="text-lg font-semibold text-indigo-700 mb-4">📅 Booking Status</h4>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex justify-between">
                         <span>Pending</span>
-                        <span className="font-semibold text-gray-600">{analytics.pendingBookings || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold text-gray-700">{analytics.pendingBookings || 0}</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>Confirmed</span>
-                        <span className="font-semibold text-yellow-600">{analytics.confirmedBookings || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold text-yellow-600">{analytics.confirmedBookings || 0}</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>In Progress</span>
-                        <span className="font-semibold text-blue-600">{analytics.inProgressBookings || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold text-blue-600">{analytics.inProgressBookings || 0}</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>Completed</span>
-                        <span className="font-semibold text-green-600">{analytics.completedJobs || 0}</span>
-                      </div>
-                    </div>
+                        <span className="font-bold text-green-600">{analytics.completedJobs || 0}</span>
+                      </li>
+                    </ul>
                   </div>
 
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <h4 className="text-lg font-semibold text-black mb-4">Performance Metrics</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
+                  {/* Performance Metrics */}
+                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-6 rounded-2xl shadow-md transition hover:shadow-xl">
+                    <h4 className="text-lg font-semibold text-purple-700 mb-4">💡 Performance Metrics</h4>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex justify-between">
                         <span>Response Rate</span>
-                        <span className="font-semibold">{analytics.responseRate || 0}%</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold">{analytics.responseRate || 0}%</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>Average Rating</span>
-                        <span className="font-semibold">{analytics.averageRating || 0}/5</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold text-yellow-600">{analytics.averageRating || 0}/5</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>Total Reviews</span>
-                        <span className="font-semibold">{analytics.totalReviews || 0}</span>
-                      </div>
-                    </div>
+                        <span className="font-bold">{analytics.totalReviews || 0}</span>
+                      </li>
+                    </ul>
                   </div>
 
-                  <div className="bg-gray-50 p-6 rounded-lg">
-                    <h4 className="text-lg font-semibold text-black mb-4">Earnings</h4>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
+                  {/* Earnings */}
+                  <div className="bg-gradient-to-r from-green-100 to-teal-100 p-6 rounded-2xl shadow-md transition hover:shadow-xl">
+                    <h4 className="text-lg font-semibold text-green-700 mb-4">💰 Earnings</h4>
+                    <ul className="space-y-3 text-sm">
+                      <li className="flex justify-between">
                         <span>Total Earnings</span>
-                        <span className="font-semibold text-green-600">${analytics.totalEarnings || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold text-green-700">${analytics.totalEarnings || 0}</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>This Month</span>
-                        <span className="font-semibold text-green-600">${analytics.monthlyEarnings || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
+                        <span className="font-bold text-emerald-600">${analytics.monthlyEarnings || 0}</span>
+                      </li>
+                      <li className="flex justify-between">
                         <span>Avg per Job</span>
-                        <span className="font-semibold">$75</span>
-                      </div>
-                    </div>
+                        <span className="font-bold">$75</span>
+                      </li>
+                    </ul>
                   </div>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-lg p-6">
-                  <h4 className="text-lg font-semibold text-black mb-4">Monthly Trends</h4>
+                {/* Monthly Trends */}
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 transition hover:shadow-lg">
+                  <h4 className="text-xl font-semibold text-gray-800 mb-6">📈 Monthly Trends</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h5 className="font-medium text-black mb-2">Booking Trends</h5>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
+                    {/* Booking Trends */}
+                    <div className="space-y-3">
+                      <h5 className="text-md font-semibold text-indigo-700">📦 Booking Trends</h5>
+                      <div className="text-sm space-y-2">
+                        <div className="flex justify-between">
                           <span>This Month</span>
-                          <span className="font-semibold">{analytics.monthlyBookings || 0} bookings</span>
+                          <span className="font-bold">{analytics.monthlyBookings || 0} bookings</span>
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between">
                           <span>Completion Rate</span>
-                          <span className="font-semibold">
+                          <span className="font-bold">
                             {analytics.totalBookings > 0
                               ? Math.round((analytics.completedJobs / analytics.totalBookings) * 100)
                               : 0}
@@ -567,16 +573,18 @@ const ProviderDashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <h5 className="font-medium text-black mb-2">Revenue Trends</h5>
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
+
+                    {/* Revenue Trends */}
+                    <div className="space-y-3">
+                      <h5 className="text-md font-semibold text-green-700">💵 Revenue Trends</h5>
+                      <div className="text-sm space-y-2">
+                        <div className="flex justify-between">
                           <span>Monthly Revenue</span>
-                          <span className="font-semibold text-green-600">${analytics.monthlyEarnings || 0}</span>
+                          <span className="font-bold text-emerald-700">${analytics.monthlyEarnings || 0}</span>
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between">
                           <span>Growth Rate</span>
-                          <span className="font-semibold text-green-600">+15%</span>
+                          <span className="font-bold text-green-500">+15%</span>
                         </div>
                       </div>
                     </div>
@@ -584,7 +592,7 @@ const ProviderDashboard = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Feedback Tab */}
             {activeTab === "feedback" && (
               <div className="space-y-6">
