@@ -5,6 +5,8 @@ const Booking = require("../models/Booking")
 const Service = require("../models/Service")
 const Review = require("../models/Review")
 const auth = require("../middleware/auth")
+const Payment = require("../models/Payment")
+const PlatformEarnings = require("../models/PlatformEarnings")
 
 // Get user profile
 router.get("/profile", auth, async (req, res) => {
@@ -81,58 +83,114 @@ router.get("/services", auth, async (req, res) => {
 })
 
 // Get analytics (providers only)
+// Get user analytics
 router.get("/analytics", auth, async (req, res) => {
   try {
-    if (req.user.role !== "provider") {
-      return res.status(403).json({ message: "Only providers can access analytics" })
+    if (req.user.role === "provider") {
+      // Provider analytics with net earnings (after platform commission)
+      const totalBookings = await Booking.countDocuments({ providerId: req.user.userId })
+      const completedBookings = await Booking.countDocuments({
+        providerId: req.user.userId,
+        status: "completed",
+      })
+
+      // Get net earnings from platform earnings table
+      const earningsData = await PlatformEarnings.aggregate([
+        { $match: { providerId: req.user.userId, status: "completed" } },
+        {
+          $group: {
+            _id: null,
+            totalEarnings: { $sum: "$providerAmount" }, // Net amount after commission
+            totalGross: { $sum: "$serviceAmount" }, // Gross amount
+            totalCommission: { $sum: "$commissionAmount" }, // Commission paid
+          },
+        },
+      ])
+
+      const currentMonth = new Date()
+      currentMonth.setDate(1)
+      currentMonth.setHours(0, 0, 0, 0)
+
+      const monthlyEarnings = await PlatformEarnings.aggregate([
+        {
+          $match: {
+            providerId: req.user.userId,
+            status: "completed",
+            createdAt: { $gte: currentMonth },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            monthlyEarnings: { $sum: "$providerAmount" },
+            monthlyBookings: { $sum: 1 },
+          },
+        },
+      ])
+
+      const reviews = await Review.find({ providerId: req.user.userId })
+      const averageRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0
+
+      // Booking status breakdown
+      const pendingBookings = await Booking.countDocuments({
+        providerId: req.user.userId,
+        status: "pending",
+      })
+      const confirmedBookings = await Booking.countDocuments({
+        providerId: req.user.userId,
+        status: "confirmed",
+      })
+      const inProgressBookings = await Booking.countDocuments({
+        providerId: req.user.userId,
+        status: "in-progress",
+      })
+
+      res.json({
+        totalBookings,
+        completedJobs: completedBookings,
+        totalEarnings: earningsData[0]?.totalEarnings || 0,
+        totalGrossEarnings: earningsData[0]?.totalGross || 0,
+        totalCommissionPaid: earningsData[0]?.totalCommission || 0,
+        monthlyEarnings: monthlyEarnings[0]?.monthlyEarnings || 0,
+        monthlyBookings: monthlyEarnings[0]?.monthlyBookings || 0,
+        averageRating: Math.round(averageRating * 10) / 10,
+        totalReviews: reviews.length,
+        pendingBookings,
+        confirmedBookings,
+        inProgressBookings,
+        responseRate: totalBookings > 0 ? Math.round((completedBookings / totalBookings) * 100) : 0,
+      })
+    } else if (req.user.role === "customer") {
+      // Customer analytics
+      const totalBookings = await Booking.countDocuments({ customerId: req.user.userId })
+      const completedBookings = await Booking.countDocuments({
+        customerId: req.user.userId,
+        status: "completed",
+      })
+
+      const totalSpent = await Payment.aggregate([
+        {
+          $lookup: {
+            from: "bookings",
+            localField: "bookingId",
+            foreignField: "_id",
+            as: "booking",
+          },
+        },
+        { $unwind: "$booking" },
+        { $match: { "booking.customerId": req.user.userId, paymentStatus: "completed" } },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ])
+
+      const reviews = await Review.find({ customerId: req.user.userId })
+
+      res.json({
+        totalBookings,
+        completedBookings,
+        totalSpent: totalSpent[0]?.total || 0,
+        totalReviews: reviews.length,
+      })
     }
-
-    const providerId = req.user.userId
-
-    // Get all bookings for this provider
-    const allBookings = await Booking.find({ providerId })
-    const completedBookings = allBookings.filter((b) => b.status === "completed")
-    const pendingBookings = allBookings.filter((b) => b.status === "pending")
-    const confirmedBookings = allBookings.filter((b) => b.status === "confirmed")
-    const inProgressBookings = allBookings.filter((b) => b.status === "in-progress")
-
-    // Calculate monthly stats
-    const currentMonth = new Date().getMonth()
-    const currentYear = new Date().getFullYear()
-    const monthlyBookings = allBookings.filter((b) => {
-      const bookingDate = new Date(b.createdAt)
-      return bookingDate.getMonth() === currentMonth && bookingDate.getFullYear() === currentYear
-    })
-
-    // Calculate earnings
-    const totalEarnings = completedBookings.reduce((sum, booking) => sum + (booking.totalAmount || 75), 0)
-    const monthlyEarnings = monthlyBookings
-      .filter((b) => b.status === "completed")
-      .reduce((sum, booking) => sum + (booking.totalAmount || 75), 0)
-
-    // Get reviews
-    const reviews = await Review.find({ providerId, reviewType: "provider", isApproved: true })
-    const averageRating =
-      reviews.length > 0 ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10 : 0
-
-    const analytics = {
-      totalBookings: allBookings.length,
-      completedJobs: completedBookings.length,
-      pendingBookings: pendingBookings.length,
-      confirmedBookings: confirmedBookings.length,
-      inProgressBookings: inProgressBookings.length,
-      monthlyBookings: monthlyBookings.length,
-      totalEarnings,
-      monthlyEarnings,
-      averageRating,
-      totalReviews: reviews.length,
-      responseRate:
-        allBookings.length > 0
-          ? Math.round(((allBookings.length - pendingBookings.length) / allBookings.length) * 100)
-          : 0,
-    }
-
-    res.json(analytics)
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
