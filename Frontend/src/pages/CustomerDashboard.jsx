@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import ReviewModal from "../components/ReviewModal"
+import ChatWindow from "../components/ChatWindow"
 
 const CustomerDashboard = () => {
   const { user, token, updateUser } = useAuth()
@@ -25,6 +26,7 @@ const CustomerDashboard = () => {
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState(null)
   const [activeBooking,setActiveBooking]=useState([])
+  const [showChat, setShowChat] = useState(false)
 
     useEffect(() => {
       fetchUserData();
@@ -209,9 +211,11 @@ const CustomerDashboard = () => {
         }
       }
       
-      const handleChatWithProvider = (provider) => {
-        console.log("Chat with provider:", provider)
+      const handleOpenChat = (booking) => {
+        setSelectedBooking(booking)
+        setShowChat(true)
       }
+    
 
       const handleTrackJob = (booking) => {
         // Navigate to tracking page or open a modal
@@ -352,7 +356,7 @@ const CustomerDashboard = () => {
                                 {booking.providerId && (
                                   <button
                                     className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-md w-full sm:w-auto"
-                                    onClick={() => handleChatWithProvider(booking.providerId)}
+                                    onClick={() => handleOpenChat(booking)}
                                   >
                                     💬 Chat with Provider
                                   </button>
@@ -511,7 +515,7 @@ const CustomerDashboard = () => {
                               {booking.providerId && (
                                 <button
                                   className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-md w-full sm:w-auto"
-                                  onClick={() => handleChatWithProvider(booking.providerId)}
+                                  onClick={() => handleOpenChat(booking.providerId)}
                                 >
                                   💬 Chat with Provider
                                 </button>
@@ -720,6 +724,17 @@ const CustomerDashboard = () => {
             setSelectedBooking(null)
           }}
           onSuccess={handleReviewSuccess}
+        />
+      )}
+
+            {/* Chat Modal */}
+            {showChat && selectedBooking && (
+            <ChatWindow
+              bookingId={selectedBooking._id}
+              onClose={() => {
+                setShowChat(false)
+                setSelectedBooking(null)
+              }}
         />
       )}
     </div>
