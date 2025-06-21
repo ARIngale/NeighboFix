@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
-
+import ChatWindow from "../components/ChatWindow"
 
 const ProviderDashboard = () => {
     const { user, token } = useAuth()
@@ -25,6 +25,8 @@ const ProviderDashboard = () => {
         paymentMethod: "cash",
         notes: "",
       })
+      const [showChat, setShowChat] = useState(false)
+
       
       useEffect(() => {
         fetchProviderData()
@@ -244,6 +246,11 @@ const ProviderDashboard = () => {
           ? insights
           : ["Keep up the good work! Complete more services to get personalized insights."]
       }
+    
+      const handleOpenChat = (booking) => {
+        setSelectedBooking(booking)
+        setShowChat(true)
+      }
       
     return (
         <div className="min-h-screen bg-gray-50 py-8">
@@ -255,14 +262,14 @@ const ProviderDashboard = () => {
                 <h1 className="text-2xl font-bold text-black">Provider Dashboard</h1>
                 <p className="text-gray-600">Welcome back, {user?.name}!</p>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex space-x-4">
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Total Earnings</p>
                   <p className="text-2xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Rating</p>
-                  <p className="text-2xl font-bold text-black">{analytics.averageRating || 0} ⭐</p>
+                  <p className="text-2xl font-bold text-black">{analytics.averageRating || 0}⭐</p>
                 </div>
               </div>
             </div>
@@ -270,8 +277,8 @@ const ProviderDashboard = () => {
           
           {/* Navigation Tabs */}
         <div className="bg-white rounded-lg shadow-sm mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="flex space-x-8 px-6">
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="flex px-4 sm:px-6 space-x-4 sm:space-x-8 min-w-max">
               {[
                 { id: "overview", label: "Overview" },
                 { id: "bookings", label: "Active Bookings" },
@@ -282,7 +289,7 @@ const ProviderDashboard = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  className={`py-4 px-1 flex-shrink-0 border-b-2 font-medium text-sm ${
                     activeTab === tab.id
                       ? "border-black text-black"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
@@ -369,40 +376,52 @@ const ProviderDashboard = () => {
                             </div>
                           </div>
 
-                          <div className="flex space-x-2">
+                          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:space-x-2 space-y-2 sm:space-y-0 w-full">
                             {booking.status === "pending" && (
                               <>
                                 <button
                                   onClick={() => handleBookingAction(booking._id, "confirmed")}
-                                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors w-full sm:w-auto"
                                 >
                                   Accept
                                 </button>
                                 <button
                                   onClick={() => handleBookingAction(booking._id, "cancelled")}
-                                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors w-full sm:w-auto"
                                 >
                                   Decline
                                 </button>
                               </>
                             )}
+
                             {booking.status === "confirmed" && (
                               <button
                                 onClick={() => handleBookingAction(booking._id, "in-progress")}
-                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors w-full sm:w-auto"
                               >
                                 Start Job
                               </button>
                             )}
+
                             {booking.status === "in-progress" && (
                               <button
                                 onClick={() => handleCompleteService(booking)}
-                                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+                                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors w-full sm:w-auto"
                               >
                                 Complete & Get Payment
                               </button>
                             )}
+
+                            {booking.providerId && (booking.status === "confirmed" || booking.status === "in-progress") && (
+                              <button
+                                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded w-full sm:w-auto"
+                                onClick={() => handleOpenChat(booking)}
+                              >
+                                💬 Chat with Provider
+                              </button>
+                            )}
                           </div>
+
                         </div>
                       ))}
                   </div>
@@ -464,40 +483,52 @@ const ProviderDashboard = () => {
                             </div>
                           </div>
 
-                          <div className="flex space-x-2">
+                          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:space-x-2 space-y-2 sm:space-y-0 w-full">
                             {booking.status === "pending" && (
                               <>
                                 <button
                                   onClick={() => handleBookingAction(booking._id, "confirmed")}
-                                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors w-full sm:w-auto"
                                 >
                                   Accept
                                 </button>
                                 <button
                                   onClick={() => handleBookingAction(booking._id, "cancelled")}
-                                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors w-full sm:w-auto"
                                 >
                                   Decline
                                 </button>
                               </>
                             )}
+
                             {booking.status === "confirmed" && (
                               <button
                                 onClick={() => handleBookingAction(booking._id, "in-progress")}
-                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors w-full sm:w-auto"
                               >
                                 Start Job
                               </button>
                             )}
+
                             {booking.status === "in-progress" && (
                               <button
                                 onClick={() => handleCompleteService(booking)}
-                                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+                                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors w-full sm:w-auto"
                               >
                                 Complete & Get Payment
                               </button>
                             )}
+
+                            {booking.providerId && (booking.status === "confirmed" || booking.status === "in-progress") && (
+                              <button
+                                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded w-full sm:w-auto"
+                                onClick={() => handleOpenChat(booking)}
+                              >
+                                💬 Chat with Provider
+                              </button>
+                            )}
                           </div>
+
                         </div>
                       ))}
                   </div>
@@ -943,6 +974,17 @@ const ProviderDashboard = () => {
             </div>
           </div>
         </div>
+      )}
+
+        {/* Chat Modal */}
+          {showChat && selectedBooking && (
+            <ChatWindow
+              bookingId={selectedBooking._id}
+              onClose={() => {
+                setShowChat(false)
+                setSelectedBooking(null)
+              }}
+        />
       )}
     </div>
 

@@ -239,7 +239,7 @@ const CustomerDashboard = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex flex-col md:flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-black">Welcome back, User</h1>
+              <h1 className="text-2xl font-bold text-black">Welcome back, {user?.name}</h1>
               <p className="text-gray-600">Manage your bookings and profile</p>
             </div>
             <Link
