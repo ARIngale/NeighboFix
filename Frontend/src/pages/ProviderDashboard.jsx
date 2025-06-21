@@ -420,6 +420,14 @@ const ProviderDashboard = () => {
                                 💬 Chat with Provider
                               </button>
                             )}
+                            {booking.status === "completed" && (
+                              <FavoriteButton
+                                serviceId={booking.serviceId}
+                                providerId={booking.providerId}
+                                type="service" // or "provider", based on your logic
+                                className="ml-2"
+                              />
+                            )}
                           </div>
 
                         </div>

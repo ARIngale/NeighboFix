@@ -5,6 +5,7 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import ReviewModal from "../components/ReviewModal"
 import ChatWindow from "../components/ChatWindow"
+import FavoriteButton from "../components/FavoriteButton"
 
 const CustomerDashboard = () => {
   const { user, token, updateUser } = useAuth()
@@ -202,7 +203,6 @@ const CustomerDashboard = () => {
           }
       
           const data = await response.json()
-          console.log(data)
           setActiveBooking(data.bookings)
         } catch (error) {
           console.error("Error fetching active bookings:", error)
@@ -428,11 +428,18 @@ const CustomerDashboard = () => {
                               </p>
                             )}
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}
-                          >
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                          </span>
+                          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}
+                            >
+                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </span>
+                            <FavoriteButton
+                              serviceId={booking.serviceId._id}
+                              providerId={booking.providerId._id}
+                              type="service"
+                            />
+                          </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">

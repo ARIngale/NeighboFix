@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"
 import Login from "../components/Login"
+import FavoriteButton from "../components/FavoriteButton"
 
 const Services = () => {
 
@@ -224,12 +225,22 @@ const Services = () => {
                     <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
                       {service.category}
                     </span>
-                    <button
-                      onClick={() => handleBookNow(service._id)}
-                      className="px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800"
-                    >
-                      Book Now
-                    </button>
+                    <div className="flex items-center gap-2 mt-4">
+                    {user && user.role === "customer" && (
+                      <FavoriteButton
+                        serviceId={service?._id}
+                        providerId={service?.providerId?._id}
+                        type="service"
+                        className="ml-0"
+                      />
+                    )}
+                      <button
+                        onClick={() => handleBookNow(service._id)}
+                        className="px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-gray-800"
+                      >
+                        Book Now
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

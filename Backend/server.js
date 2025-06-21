@@ -31,6 +31,7 @@ app.use("/api/bookings", require("./routes/bookings"))
 app.use("/api/admin", require("./routes/admin"))
 app.use("/api/notifications", require("./routes/notifications").router)
 app.use("/api/chat", require("./routes/chat"))
+app.use("/api/favorites", require("./routes/favorites"))
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`)
