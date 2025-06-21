@@ -58,30 +58,34 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-  <button
-    onClick={() => setShowAdminLogin(true)}
-    className="text-gray-300 hover:text-white transition-colors"
-  >
-    Admin Login
-  </button>
-</li>
-
+              <button
+                onClick={() => setShowAdminLogin(true)}
+                className="text-gray-300 hover:text-white transition-colors"
+              >
+                Admin Login
+              </button>
+            </li>
             </ul>
           </div>
 
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
-            <p className="text-gray-300 mb-4">Stay updated with our latest services and offers.</p>
-            <div className="flex">
+          <div className="w-full max-w-md">
+            <h4 className="text-lg sm:text-xl font-semibold mb-2 text-white">Newsletter</h4>
+            <p className="text-gray-300 mb-4 text-sm sm:text-base">
+              Stay updated with our latest services and offers.
+            </p>
+            <form className="flex flex-col sm:flex-row w-full">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-3 py-2 bg-white text-black rounded-l-md focus:outline-none focus:ring-2 focus:ring-gray-500"
+                className="w-full sm:flex-1 px-4 py-2 rounded-t-md sm:rounded-l-md sm:rounded-tr-none focus:outline-none focus:ring-2 focus:ring-gray-500 text-sm sm:text-base"
               />
-              <button className="bg-gray-700 text-white px-4 py-2 rounded-r-md hover:bg-gray-600 transition-colors">
+              <button
+                type="submit"
+                className="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-b-md sm:rounded-r-md sm:rounded-bl-none mt-2 sm:mt-0 text-sm sm:text-base transition-all"
+              >
                 Subscribe
               </button>
-            </div>
+            </form>
           </div>
         </div>
 

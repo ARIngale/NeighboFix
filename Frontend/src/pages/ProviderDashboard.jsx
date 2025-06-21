@@ -1,6 +1,7 @@
 import { useState,useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import ChatWindow from "../components/ChatWindow"
+import Loader from "../components/Loader"
 
 const ProviderDashboard = () => {
     const { user, token } = useAuth()
@@ -26,6 +27,7 @@ const ProviderDashboard = () => {
         notes: "",
       })
       const [showChat, setShowChat] = useState(false)
+      const [loading, setLoading] = useState(true)
 
       
       useEffect(() => {
@@ -58,7 +60,7 @@ const ProviderDashboard = () => {
         } catch (error) {
           console.error("Error fetching provider data:", error)
         } finally {
-          // 
+          setLoading(false)
         }
       }
       
@@ -69,6 +71,8 @@ const ProviderDashboard = () => {
           setFeedback(data)
         } catch (error) {
           console.error("Error fetching feedback:", error)
+        }finally {
+          setLoading(false)
         }
       }
     
@@ -251,6 +255,13 @@ const ProviderDashboard = () => {
         setSelectedBooking(booking)
         setShowChat(true)
       }
+
+      if(loading){
+        return (
+          <Loader/>
+        )
+      }
+    
       
     return (
         <div className="min-h-screen bg-gray-50 py-8">

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import Login from "./Login"
+import Loader from "../components/Loader"
 
 const Testimonials = () => {
   const [platformReviews, setPlatformReviews] = useState([])
@@ -92,6 +93,12 @@ const Testimonials = () => {
 
   const handleRatingChange = (rating) => {
     setNewReview({ ...newReview, rating })
+  }
+
+  if(loading){
+    return (
+      <Loader/>
+    )
   }
 
   return (

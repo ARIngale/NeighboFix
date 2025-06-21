@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"
 import Login from "../components/Login"
 import FavoriteButton from "../components/FavoriteButton"
+import Loader from "../components/Loader"
 
 const Services = () => {
 
@@ -14,6 +15,7 @@ const Services = () => {
   const [sortBy, setSortBy] = useState("name");
   const [showLogin, setShowLogin] = useState(false)
   const [redirectService, setRedirectService] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -35,7 +37,7 @@ const Services = () => {
     } catch (error) {
       console.error("Error fetching services:", error)
     } finally {
-      // 
+      setLoading(false)
     }
   }
   const filterAndSortServices = () => {
@@ -97,6 +99,7 @@ const Services = () => {
 
   const categories = ["All", ...new Set(services.map((s) => s.category))];
 
+  
   return (
     <div className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

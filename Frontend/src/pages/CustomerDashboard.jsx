@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext"
 import ReviewModal from "../components/ReviewModal"
 import ChatWindow from "../components/ChatWindow"
 import FavoriteButton from "../components/FavoriteButton"
+import Loader from "../components/Loader"
 
 const CustomerDashboard = () => {
   const { user, token, updateUser } = useAuth()
@@ -29,6 +30,7 @@ const CustomerDashboard = () => {
   const [activeBooking,setActiveBooking]=useState([])
   const [showChat, setShowChat] = useState(false)
   const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [loading, setLoading] = useState(true)
 
 
     useEffect(() => {
@@ -68,7 +70,7 @@ const CustomerDashboard = () => {
       } catch (error) {
         console.error("Error fetching user data:", error)
       } finally {
-        // 
+        setLoading(false)
       }
     }
 
@@ -83,6 +85,8 @@ const CustomerDashboard = () => {
         }
       } catch (error) {
         console.error("Error fetching reviews:", error)
+      }finally {
+        setLoading(false)
       }
     }
   
@@ -232,7 +236,7 @@ const CustomerDashboard = () => {
         } catch (error) {
           console.error("Error fetching active bookings:", error)
         } finally {
-          // 
+          setLoading(false)
         }
       }
       
@@ -255,7 +259,11 @@ const CustomerDashboard = () => {
         }
       }
       
-      
+      if(loading){
+        return (
+          <Loader/>
+        )
+      }
 
   return (
     <> 

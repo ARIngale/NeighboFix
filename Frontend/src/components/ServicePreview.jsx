@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import Login from "./Login"
+import Loader from "../components/Loader"
 
 
 const ServicePreview = () => {
@@ -11,6 +12,8 @@ const ServicePreview = () => {
   const [showLogin, setShowLogin] = useState(false)
   const [redirectPath, setRedirectPath] = useState("")
   const { user } = useAuth()
+  const [loading, setLoading] = useState(true)
+
 
   // Load services on component mount
   useEffect(() => {
@@ -25,7 +28,7 @@ const ServicePreview = () => {
     } catch (error) {
       console.error("Error fetching services:", error)
     } finally {
-      // 
+      setLoading(false)
     }
   }
 
@@ -43,6 +46,12 @@ const ServicePreview = () => {
 
     // User is authenticated and is a customer, proceed to booking
     window.location.href = `/book/${serviceId}`
+  }
+
+  if(loading){
+    return (
+      <Loader/>
+    )
   }
 
   return (
