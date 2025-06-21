@@ -58,7 +58,7 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
     e.preventDefault()
     setLoading(true)
     setError("")
-
+  
     try {
       let result
       if (isLogin) {
@@ -69,7 +69,7 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
           role: userType,
         })
       }
-
+  
       if (result.success) {
         onClose()
         if (redirectPath) {
@@ -78,21 +78,31 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
           navigate(userType === "customer" ? "/customer-dashboard" : "/provider-dashboard")
         }
       } else {
-        setError(result.message)
+        // Check specific backend error messages
+        if (result.message.includes("already exists")) {
+          setError("An account with this email already exists.")
+        } else if (result.message.includes("not found")) {
+          setError("User not found. Please check your credentials.")
+        } else if (result.message.includes("not allowed for this role")) {
+          setError("Access denied for the selected account type.")
+        } else {
+          setError(result.message || "Something went wrong. Please try again.")
+        }
       }
     } catch (error) {
-      setError("Something went wrong. Please try again.")
+      setError("Server error. Please try again later.")
     }
-
+  
     setLoading(false)
   }
+  
 
   const handleForgotPassword = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError("")
     setMessage("")
-
+  
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/forgot-password`, {
         method: "POST",
@@ -101,9 +111,9 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
         },
         body: JSON.stringify(forgotPasswordData),
       })
-
+  
       const data = await response.json()
-
+  
       if (response.ok) {
         setMessage("Password reset instructions have been sent to your email.")
         setTimeout(() => {
@@ -111,14 +121,22 @@ const Login = ({ onClose, initialUserType = "", redirectPath = null }) => {
           setMessage("")
         }, 3000)
       } else {
-        setError(data.message)
+        // Add specific error message handling
+        if (data.message.includes("not found")) {
+          setError("No account found with this email.")
+        } else if (data.message.includes("not allowed")) {
+          setError("This email is not associated with the selected account type.")
+        } else {
+          setError(data.message)
+        }
       }
     } catch (error) {
       setError("Failed to send reset email. Please try again.")
     }
-
+  
     setLoading(false)
   }
+  
 
   const resetForm = () => {
     setFormData({
