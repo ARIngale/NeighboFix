@@ -215,8 +215,12 @@ const Services = () => {
                           )}
                         </div>
                       </div>
-                      <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                        Verified
+                      <span
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          service.providerId.isVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {service.providerId.isVerified ? "Verified" : "Unverified"}
                       </span>
                     </div>
                   </div>

@@ -182,4 +182,60 @@ router.get("/providers/earnings", auth, async (req, res) => {
   }
 })
 
+// // Get all users with filtering and pagination
+router.get("/users", auth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Only Admin can access this endpoint" })
+  }
+    const { role, status, page = 1, limit = 10, search } = req.query
+    const query = {}
+
+    if (role && role !== "all") query.role = role
+    // if (status === "verified") query.isVerified = true
+    if (status === "unverified") query.isVerified = false
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { businessName: { $regex: search, $options: "i" } },
+      ]
+    }
+
+    const users = await User.find(query)
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+
+    const total = await User.countDocuments(query)
+
+    res.json({
+      users,
+      totalPages: Math.ceil(total / limit),
+      currentPage: page,
+      total,
+    })
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+// // Update user status
+router.patch("/users/:id", auth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") {
+      return res.status(403).json({ message: "Only Admin can access this endpoint" })
+  }
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true }).select("-password")
+    if (!user) {
+      return res.status(404).json({ message: "User not found" })
+    }
+    res.json(user)
+  } catch (error) {
+    res.status(400).json({ message: error.message })
+  }
+})
+
+
+
 module.exports = router

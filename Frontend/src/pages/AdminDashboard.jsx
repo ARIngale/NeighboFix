@@ -13,12 +13,14 @@ const AdminDashboard = () => {
   const [contactMessages, setContactMessages] = useState([])
   const [showModal,setShowModal]=useState(false)
   const [selectedMessage, setSelectedMessage] = useState("");
+  const [unVerified,setUnVerified]=useState([]);
 
   useEffect(() => {
     fetchAnalytics()
     fetchMonthlyData()
     fetchProviderEarnings()
     fetchContactMessages()
+    fetchUnVerifiedProviders()
   }, [])
 
   const openModal =async (message, id, status)  => {
@@ -38,6 +40,29 @@ const AdminDashboard = () => {
       }
     }
   };
+  const fetchUnVerifiedProviders = async () => {
+    try {
+      const token = localStorage.getItem("token") // or from your auth context
+  
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/users?role=provider&status=unverified`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch verified providers")
+      }
+  
+      const data = await response.json()
+      setUnVerified(data.users)
+      return data.users
+    } catch (error) {
+      console.error("Error fetching verified providers:", error.message)
+      return []
+    }
+  }
+  
   
 
   const fetchAnalytics = async () => {
@@ -125,6 +150,39 @@ const AdminDashboard = () => {
       console.error("Error responding to contact:", error);
     }
   };
+  const handleVerify = async (userId) => {
+    const updated = await updateUserStatus(userId, { isVerified: true })
+    if (updated) {
+      // Refetch or update UI
+      fetchUnVerifiedProviders()
+    }
+  }
+  const updateUserStatus = async (userId, updateData = { isVerified: true }) => {
+    try {
+      const token = localStorage.getItem("token")
+  
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(updateData),
+      })
+  
+      if (!response.ok) {
+        throw new Error("Failed to update user")
+      }
+  
+      const updatedUser = await response.json()
+      return updatedUser
+    } catch (error) {
+      console.error("Error updating user:", error.message)
+      return null
+    }
+  }
+  
+
   
   if (loading) {
     return (
@@ -198,7 +256,8 @@ const AdminDashboard = () => {
                 { id: "earnings", label: "Monthly Earnings" },
                 { id: "providers", label: "Provider Earnings" },
                 { id: "transactions", label: "Recent Transactions" },
-                { id: "contacts", label: "Contact Messages" }
+                { id: "contacts", label: "Contact Messages" },
+                { id: "unverified", label: "Unverified Providers" }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -483,6 +542,44 @@ const AdminDashboard = () => {
                     </div>
                 </div>
                 )}
+  
+           {/* Unverified Provider tab */}
+            {activeTab === "unverified" && (
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-black">Unverified Providers</h3>
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Phone</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Business Name</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {unVerified.map((provider) => (
+                        <tr key={provider._id}>
+                          <td className="px-6 py-4 text-sm">{provider.name}</td>
+                          <td className="px-6 py-4 text-sm text-blue-600">{provider.email}</td>
+                          <td className="px-6 py-4 text-sm">{provider.phone}</td>
+                          <td className="px-6 py-4 text-sm">{provider.businessName || "—"}</td>
+                          <td className="px-6 py-4 text-sm">
+                            <button
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                              onClick={() => handleVerify(provider._id)}
+                            >
+                              Verify
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
