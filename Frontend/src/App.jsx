@@ -15,6 +15,8 @@ import ResetPassword from "./pages/ResetPassword"
 import BookingForm from "./components/BookingForm"
 import AdminDashboard from './pages/AdminDashboard'
 import AdminProtectedRoute from './components/AdminProtectedRoute'
+import BookingHistory from "./pages/BookingHistory"
+
 function App() {
 
   return (
@@ -41,6 +43,14 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+                <Route
+              path="/booking-history"
+              element={
+                <ProtectedRoute>
+                  <BookingHistory />
+                </ProtectedRoute>
+              }
+            />
               <Route
               path="/customer-dashboard"
               element={

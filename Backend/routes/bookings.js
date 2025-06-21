@@ -28,6 +28,44 @@ router.get("/", auth, async (req, res) => {
   }
 })
 
+router.get("/filter", auth, async (req, res) => {
+  try {
+    const { status, upcoming, past } = req.query
+
+    const filter = {}
+
+    // Role-based filter
+    if (req.user.role === "customer") {
+      filter.customerId = req.user.userId
+    } else if (req.user.role === "provider") {
+      filter.providerId = req.user.userId
+    }
+
+    // === Filter Logic ===
+    if (upcoming === "true") {
+      filter.status = { $in: ["pending", "confirmed", "in-progress"] }
+    } else if (past === "true") {
+      filter.status = { $in: ["completed", "cancelled"] }
+    } else if (status && status !== "all") {
+      filter.status = status // exact match (e.g. pending, in-progress, etc.)
+    }
+    // else → status === "all" or not provided → no filter on status
+
+    const bookings = await Booking.find(filter)
+      .populate("serviceId")
+      .populate(
+        req.user.role === "customer" ? "providerId" : "customerId",
+        "name email phone"
+      )
+      .sort({ preferredDate: -1, createdAt: -1 })
+
+    res.json({ bookings })
+  } catch (error) {
+    console.error("Error filtering bookings:", error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
 // Create new booking (customers only)
 router.post("/", auth, async (req, res) => {
   try {

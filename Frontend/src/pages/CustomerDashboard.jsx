@@ -24,10 +24,12 @@ const CustomerDashboard = () => {
   const [updating, setUpdating] = useState(false)
   const [showReviewModal, setShowReviewModal] = useState(false)
   const [selectedBooking, setSelectedBooking] = useState(null)
+  const [activeBooking,setActiveBooking]=useState([])
 
     useEffect(() => {
       fetchUserData();
-      fetchReviews() 
+      fetchReviews();
+      fetchActiveBookings()
     },[])
 
     const fetchUserData = async () => {
@@ -162,19 +164,20 @@ const CustomerDashboard = () => {
       const getStatusMessage = (status) => {
         switch (status) {
           case "pending":
-            return "Waiting for provider confirmation"
+            return "⏳ Waiting for provider confirmation"
           case "confirmed":
-            return "Provider confirmed - service scheduled"
+            return "⏰ Provider confirmed – service scheduled"
           case "in-progress":
-            return "Service is currently in progress"
+            return "🔄 Service is currently in progress"
           case "completed":
-            return "Service completed successfully"
+            return "✅ Service completed successfully"
           case "cancelled":
-            return "Service was cancelled"
+            return "❌ Service was cancelled"
           default:
             return status
         }
       }
+      
 
       const renderStars = (rating) => {
         return [...Array(5)].map((_, index) => (
@@ -183,7 +186,47 @@ const CustomerDashboard = () => {
           </span>
         ))
       }
+      const fetchActiveBookings = async () => {
+        try {
+          const response = await fetch(
+            `${import.meta.env.VITE_API_URL}/bookings/filter?upcoming=true`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          )
+      
+          if (!response.ok) {
+            throw new Error("Failed to fetch active bookings")
+          }
+      
+          const data = await response.json()
+          console.log(data)
+          setActiveBooking(data.bookings)
+        } catch (error) {
+          console.error("Error fetching active bookings:", error)
+        } finally {
+          // 
+        }
+      }
+      
+      const handleChatWithProvider = (provider) => {
+        console.log("Chat with provider:", provider)
+      }
 
+      const handleTrackJob = (booking) => {
+        // Navigate to tracking page or open a modal
+        console.log("Tracking job:", booking._id)
+      }
+      
+      const handleCancelJob = (booking) => {
+        // Show confirm dialog and make cancel API call
+        if (window.confirm("Are you sure you want to cancel this job?")) {
+          console.log("Cancelling job:", booking._id)
+          // TODO: call your cancelBooking API
+        }
+      }
+      
+      
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -256,30 +299,89 @@ const CustomerDashboard = () => {
                     <p className="text-sm text-gray-600 mt-1">In progress</p>
                   </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-black mb-4">Recent Bookings</h3>
-                  <div className="space-y-4">
-                    {bookings.slice(0, 3).map((booking) => (
-                      <div key={booking._id} className="border border-gray-200 rounded-lg p-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-semibold text-black">{booking.serviceName}</h4>
-                            <p className="text-gray-600">{booking.address}</p>
-                            <p className="text-sm text-gray-500">
-                              {new Date(booking.preferredDate).toLocaleDateString()} at {booking.preferredTime}
-                            </p>
-                            <p className="text-sm text-gray-500 mt-1">{getStatusMessage(booking.status)}</p>
-                          </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}
+                {activeBooking && activeBooking.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-black mb-4">Recent Bookings</h3>
+                    <div className="space-y-4">
+                      {activeBooking.map((booking) => (
+                        <div key={booking._id} className="border border-gray-200 rounded-lg p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-xl font-semibold text-black">
+                                {booking.serviceId?.name || "Service"}
+                              </h4>
+                              <p className="text-gray-600">{booking.address}</p>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}
                             >
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                          </span>
+                              {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="text-gray-600">
+                                <strong>Date:</strong> {new Date(booking.preferredDate).toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Time:</strong> {booking.preferredTime}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Amount:</strong> ${booking.totalAmount || 75}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">
+                                <strong>Provider:</strong>{" "}
+                                {booking.providerId?.businessName || booking.providerId?.name || "N/A"}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Contact:</strong> {booking.customerPhone}
+                              </p>
+                            </div>
+                          </div>
+                          {/* ✅ Status message + Action buttons */}
+                          <div className="mt-6 border-t-2 border-gray-200 pt-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <p className="text-sm text-gray-500">
+                                {getStatusMessage(booking.status)}
+                              </p>
+                              {/* Action Buttons */}
+                              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                                {booking.providerId && (
+                                  <button
+                                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-md w-full sm:w-auto"
+                                    onClick={() => handleChatWithProvider(booking.providerId)}
+                                  >
+                                    💬 Chat with Provider
+                                  </button>
+                                )}
+
+                                {/* You can uncomment conditionally if needed */}
+                                {(booking.status === "confirmed" || booking.status === "in-progress") && (
+                                  <button
+                                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md w-full sm:w-auto"
+                                    onClick={() => handleTrackJob(booking)}
+                                  >
+                                    📍 Track Job
+                                  </button>
+                                )} 
+
+                                <button
+                                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md w-full sm:w-auto"
+                                  onClick={() => handleCancelJob(booking)}
+                                >
+                                  ❌ Cancel Job
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
@@ -383,31 +485,58 @@ const CustomerDashboard = () => {
                             </div>
                           </div>
                         )}
+                      {["in-progress", "confirmed", "pending"].includes(booking.status) && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            {/* Status Message */}
+                            <div
+                              className={`text-sm font-medium ${
+                                booking.status === "in-progress"
+                                  ? "text-blue-600"
+                                  : booking.status === "confirmed"
+                                  ? "text-yellow-600"
+                                  : "text-gray-600"
+                              }`}
+                            >
+                              {booking.status === "in-progress" &&
+                                "🔄 Service is currently in progress. The provider will update you when complete."}
+                              {booking.status === "confirmed" &&
+                                "⏰ Service confirmed! The provider will contact you soon."}
+                              {booking.status === "pending" &&
+                                "⏳ Waiting for provider confirmation. You'll be notified once confirmed."}
+                            </div>
 
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                              {booking.providerId && (
+                                <button
+                                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-black hover:bg-gray-800 rounded-md w-full sm:w-auto"
+                                  onClick={() => handleChatWithProvider(booking.providerId)}
+                                >
+                                  💬 Chat with Provider
+                                </button>
+                              )}
 
-                        {booking.status === "in-progress" && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="text-sm text-blue-600 font-medium">
-                              🔄 Service is currently in progress. The provider will update you when complete.
+                              {/* Only show Track button for non-pending statuses */}
+                              {["in-progress", "confirmed"].includes(booking.status) && (
+                                <button
+                                  className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md w-full sm:w-auto"
+                                  onClick={() => handleTrackJob(booking)}
+                                >
+                                  📍 Track Job
+                                </button>
+                              )}
+
+                              <button
+                                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md w-full sm:w-auto"
+                                onClick={() => handleCancelJob(booking)}
+                              >
+                                ❌ Cancel Job
+                              </button>
                             </div>
                           </div>
-                        )}
-
-                        {booking.status === "confirmed" && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="text-sm text-yellow-600 font-medium">
-                              ⏰ Service confirmed! The provider will contact you soon.
-                            </div>
-                          </div>
-                        )}
-
-                        {booking.status === "pending" && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="text-sm text-gray-600 font-medium">
-                              ⏳ Waiting for provider confirmation. You'll be notified once confirmed.
-                            </div>
-                          </div>
-                        )}
+                        </div>
+                      )}
                       </div>
                     ))}
                   </div>
