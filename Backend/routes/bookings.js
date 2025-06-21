@@ -6,7 +6,8 @@ const Payment = require("../models/Payment")
 const auth = require("../middleware/auth")
 const PlatformEarnings = require("../models/PlatformEarnings") 
 const { createNotification } = require("./notifications")
-
+const Invoice = require("../models/Invoice")
+ 
 // Get bookings (filtered by user role)
 router.get("/", auth, async (req, res) => {
   try {
@@ -232,6 +233,22 @@ router.post("/:id/complete", auth, async (req, res) => {
 
     await platformEarning.save()
 
+    // Generate invoice
+    const invoiceNumber = `INV-${Date.now()}-${booking._id.toString().slice(-6)}`
+    const invoice = new Invoice({
+      invoiceNumber,
+      bookingId: booking._id,
+      customerId: booking.customerId,
+      providerId: booking.providerId,
+      serviceAmount: amount,
+      commissionAmount,
+      providerAmount,
+      commissionRate: commissionRate * 100,
+      paymentMethod: req.body.paymentMethod || "cash",
+      status: "paid",
+    })
+    await invoice.save()
+
     await createNotification(
       booking.customerId,
       "Service Completed",
@@ -256,6 +273,138 @@ router.post("/:id/complete", auth, async (req, res) => {
   } catch (error) {
     console.error("Error completing booking:", error)
     res.status(400).json({ message: error.message })
+  }
+})
+
+
+// Complete booking with payment and commission
+// router.post("/:id/complete", auth, async (req, res) => {
+//   try {
+//     const booking = await Booking.findById(req.params.id)
+//     if (!booking) {
+//       return res.status(404).json({ message: "Booking not found" })
+//     }
+
+//     if (req.user.role !== "provider" || booking.providerId.toString() !== req.user.userId) {
+//       return res.status(403).json({ message: "Access denied" })
+//     }
+
+//     // Get platform settings for commission rate
+//     const settings = await PlatformSettings.findOne()
+//     const commissionRate = (settings?.commissionRate || 10) / 100
+
+//     const serviceAmount = Number.parseFloat(req.body.amount) || booking.totalAmount || 75
+//     const commissionAmount = serviceAmount * commissionRate
+//     const providerAmount = serviceAmount - commissionAmount
+
+//     // Update booking status
+//     booking.status = "completed"
+//     await booking.save()
+
+//     // Create payment record
+//     const payment = new Payment({
+//       bookingId: booking._id,
+//       customerId: booking.customerId,
+//       providerId: booking.providerId,
+//       amount: serviceAmount,
+//       paymentMethod: req.body.paymentMethod || "cash",
+//       paymentStatus: "completed",
+//     })
+//     await payment.save()
+
+//     // Create platform earnings record
+//     const platformEarnings = new PlatformEarnings({
+//       bookingId: booking._id,
+//       providerId: booking.providerId,
+//       customerId: booking.customerId,
+//       serviceAmount: serviceAmount,
+//       commissionRate: commissionRate,
+//       commissionAmount: commissionAmount,
+//       providerAmount: providerAmount,
+//       paymentMethod: req.body.paymentMethod || "cash",
+//       status: "completed",
+//     })
+//     await platformEarnings.save()
+
+//     // Generate invoice
+//     const invoiceNumber = `INV-${Date.now()}-${booking._id.toString().slice(-6)}`
+//     const invoice = new Invoice({
+//       invoiceNumber,
+//       bookingId: booking._id,
+//       customerId: booking.customerId,
+//       providerId: booking.providerId,
+//       serviceAmount,
+//       commissionAmount,
+//       providerAmount,
+//       commissionRate: commissionRate * 100,
+//       paymentMethod: req.body.paymentMethod || "cash",
+//       status: "paid",
+//     })
+//     await invoice.save()
+
+//     // Send completion notifications
+//     await createNotification(
+//       booking.customerId,
+//       "Service Completed",
+//       `Your ${booking.serviceName} service has been completed successfully`,
+//       "booking",
+//       booking._id,
+//       "Booking",
+//       `/dashboard?tab=bookings`,
+//       "high",
+//     )
+
+//     const populatedBooking = await Booking.findById(booking._id)
+//       .populate("serviceId")
+//       .populate("customerId", "name phone email")
+
+//     res.json({
+//       booking: populatedBooking,
+//       payment: payment,
+//       invoice: invoice,
+//       platformEarnings: {
+//         serviceAmount: serviceAmount,
+//         commissionAmount: commissionAmount,
+//         providerAmount: providerAmount,
+//         commissionRate: `${commissionRate * 100}%`,
+//       },
+//       message: "Service completed successfully!",
+//     })
+//   } catch (error) {
+//     res.status(400).json({ message: error.message })
+//   }
+// })
+
+// Get invoice for a booking
+router.get("/:id/invoice", auth, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id)
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" })
+    }
+
+    // Check permissions
+    if (
+      req.user.role === "customer" &&
+      booking.customerId.toString() !== req.user.userId &&
+      req.user.role === "provider" &&
+      booking.providerId.toString() !== req.user.userId
+    ) {
+      return res.status(403).json({ message: "Access denied" })
+    }
+
+    const invoice = await Invoice.findOne({ bookingId: req.params.id })
+      .populate("bookingId")
+      .populate("customerId", "name email phone address")
+      .populate("providerId", "name businessName email phone")
+
+    if (!invoice) {
+      return res.status(404).json({ message: "Invoice not found" })
+    }
+
+    res.json(invoice)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
   }
 })
 
