@@ -48,7 +48,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
 
   const markAllAsRead = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/mark-all-read`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/notifications/mark-all-read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       })

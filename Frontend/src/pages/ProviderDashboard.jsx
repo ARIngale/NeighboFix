@@ -298,6 +298,7 @@ const ProviderDashboard = () => {
 
             {/* Overview*/}
             {activeTab === "overview" && (
+              <div>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="bg-gray-50 p-6 rounded-lg">
@@ -317,12 +318,7 @@ const ProviderDashboard = () => {
                     <p className="text-3xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Active Bookings Tab */}
-            {activeTab === "bookings" && (
-              <div className="space-y-4">
+                <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-black">Active Service Requests</h3>
 
                 {bookings.filter((b) => b.status !== "completed" && b.status !== "cancelled").length === 0 ? (
@@ -412,6 +408,102 @@ const ProviderDashboard = () => {
                   </div>
                 )}
               </div>
+                </div>
+              </div>
+            )}
+
+            {/* Active Bookings Tab */}
+            {activeTab === "bookings" && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-black">All Bookings</h3>
+
+                {bookings === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📋</div>
+                    <h3 className="text-xl font-semibold text-black mb-2">No active bookings</h3>
+                    <p className="text-gray-600">All bookings will be shown here.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {bookings
+                      .map((booking) => (
+                        <div key={booking._id} className="border border-gray-200 rounded-lg p-6">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-xl font-semibold text-black">{booking.serviceName}</h4>
+                              <p className="text-gray-600">{booking.description}</p>
+                            </div>
+                            <span
+                                className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(booking.status)}`}
+                                >
+                                {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                            <div>
+                              <p className="text-gray-600">
+                                <strong>Customer:</strong> {booking.customerName}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Phone:</strong> {booking.customerPhone}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Email:</strong> {booking.customerEmail}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-gray-600">
+                                <strong>Date:</strong> {new Date(booking.preferredDate).toLocaleDateString()}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Time:</strong> {booking.preferredTime}
+                              </p>
+                              <p className="text-gray-600">
+                                <strong>Address:</strong> {booking.address}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex space-x-2">
+                            {booking.status === "pending" && (
+                              <>
+                                <button
+                                  onClick={() => handleBookingAction(booking._id, "confirmed")}
+                                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors"
+                                >
+                                  Accept
+                                </button>
+                                <button
+                                  onClick={() => handleBookingAction(booking._id, "cancelled")}
+                                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+                                >
+                                  Decline
+                                </button>
+                              </>
+                            )}
+                            {booking.status === "confirmed" && (
+                              <button
+                                onClick={() => handleBookingAction(booking._id, "in-progress")}
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                              >
+                                Start Job
+                              </button>
+                            )}
+                            {booking.status === "in-progress" && (
+                              <button
+                                onClick={() => handleCompleteService(booking)}
+                                className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+                              >
+                                Complete & Get Payment
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </div>
+              
             )}
 
             {/* Services Tab */}
@@ -673,109 +765,109 @@ const ProviderDashboard = () => {
           </div>
         </div>
       </div>
-    {/* Service Modal */}
-    {showServiceModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-black">{editingService ? "Edit Service" : "Add New Service"}</h3>
-                <button onClick={() => setShowServiceModal(false)} className="p-2 hover:bg-gray-100 rounded-full">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+      {/* Service Modal */}
+      {showServiceModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-xl font-bold text-black">{editingService ? "Edit Service" : "Add New Service"}</h3>
+                  <button onClick={() => setShowServiceModal(false)} className="p-2 hover:bg-gray-100 rounded-full">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <form onSubmit={handleServiceSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Service Name</label>
+                    <input
+                      type="text"
+                      value={serviceForm.name}
+                      onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                      placeholder="e.g., Plumbing Repair"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Description</label>
+                    <textarea
+                      value={serviceForm.description}
+                      onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
+                      required
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                      placeholder="Describe your service..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Icon</label>
+                    <select
+                      value={serviceForm.icon}
+                      onChange={(e) => setServiceForm({ ...serviceForm, icon: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      <option value="🔧">🔧 Plumbing</option>
+                      <option value="⚡">⚡ Electrical</option>
+                      <option value="🌱">🌱 Gardening</option>
+                      <option value="🔨">🔨 Carpentry</option>
+                      <option value="🎨">🎨 Painting</option>
+                      <option value="🧹">🧹 Cleaning</option>
+                      <option value="❄️">❄️ HVAC</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Starting Price ($)</label>
+                    <input
+                      type="number"
+                      value={serviceForm.basePrice}
+                      onChange={(e) => setServiceForm({ ...serviceForm, basePrice: e.target.value })}
+                      required
+                      min="1"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                      placeholder="50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Category</label>
+                    <select
+                      value={serviceForm.category}
+                      onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
+                      required
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                    >
+                      <option value="">Select Category</option>
+                      <option value="Home Repair">Home Repair</option>
+                      <option value="Outdoor">Outdoor</option>
+                      <option value="Appliances">Appliances</option>
+                      <option value="Home Improvement">Home Improvement</option>
+                      <option value="Emergency">Emergency</option>
+                    </select>
+                  </div>
+
+                  <div className="flex space-x-4 pt-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowServiceModal(false)}
+                      className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button type="submit" className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800">
+                      {editingService ? "Update Service" : "Add Service"}
+                    </button>
+                  </div>
+                </form>
               </div>
-
-              <form onSubmit={handleServiceSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Service Name</label>
-                  <input
-                    type="text"
-                    value={serviceForm.name}
-                    onChange={(e) => setServiceForm({ ...serviceForm, name: e.target.value })}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                    placeholder="e.g., Plumbing Repair"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Description</label>
-                  <textarea
-                    value={serviceForm.description}
-                    onChange={(e) => setServiceForm({ ...serviceForm, description: e.target.value })}
-                    required
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                    placeholder="Describe your service..."
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Icon</label>
-                  <select
-                    value={serviceForm.icon}
-                    onChange={(e) => setServiceForm({ ...serviceForm, icon: e.target.value })}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                  >
-                    <option value="🔧">🔧 Plumbing</option>
-                    <option value="⚡">⚡ Electrical</option>
-                    <option value="🌱">🌱 Gardening</option>
-                    <option value="🔨">🔨 Carpentry</option>
-                    <option value="🎨">🎨 Painting</option>
-                    <option value="🧹">🧹 Cleaning</option>
-                    <option value="❄️">❄️ HVAC</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Starting Price ($)</label>
-                  <input
-                    type="number"
-                    value={serviceForm.basePrice}
-                    onChange={(e) => setServiceForm({ ...serviceForm, basePrice: e.target.value })}
-                    required
-                    min="1"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                    placeholder="50"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">Category</label>
-                  <select
-                    value={serviceForm.category}
-                    onChange={(e) => setServiceForm({ ...serviceForm, category: e.target.value })}
-                    required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                  >
-                    <option value="">Select Category</option>
-                    <option value="Home Repair">Home Repair</option>
-                    <option value="Outdoor">Outdoor</option>
-                    <option value="Appliances">Appliances</option>
-                    <option value="Home Improvement">Home Improvement</option>
-                    <option value="Emergency">Emergency</option>
-                  </select>
-                </div>
-
-                <div className="flex space-x-4 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowServiceModal(false)}
-                    className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button type="submit" className="flex-1 bg-black text-white py-3 rounded-lg hover:bg-gray-800">
-                    {editingService ? "Update Service" : "Add Service"}
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
-        </div>
-    )}
+      )}
 
         {/* Payment Modal */}
         {showPaymentModal && (
