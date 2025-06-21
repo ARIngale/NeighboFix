@@ -15,6 +15,7 @@ import ResetPassword from "./pages/ResetPassword"
 import BookingForm from "./components/BookingForm"
 import AdminDashboard from './pages/AdminDashboard'
 import AdminProtectedRoute from './components/AdminProtectedRoute'
+import Chatbot from './components/Chatbot'
 
 function App() {
 
@@ -61,6 +62,7 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
           <Footer />
+          <Chatbot />
         </div>
       </Router>
     </AuthProvider>
