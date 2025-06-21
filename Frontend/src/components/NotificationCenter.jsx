@@ -18,7 +18,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/notifications", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -35,7 +35,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
 
   const markAsRead = async (notificationId) => {
     try {
-      await fetch(`http://localhost:5000/api/notifications/${notificationId}/read`, {
+      await fetch(`${import.meta.env.VITE_API_URL}/notifications/${notificationId}/read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -48,7 +48,7 @@ const NotificationCenter = ({ isOpen, onClose }) => {
 
   const markAllAsRead = async () => {
     try {
-      await fetch("http://localhost:5000/api/notifications/mark-all-read", {
+      await fetch(`${import.meta.env.VITE_API_URL}/mark-all-read`, {
         method: "PATCH",
         headers: { Authorization: `Bearer ${token}` },
       })
