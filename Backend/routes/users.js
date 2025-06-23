@@ -67,6 +67,19 @@ router.get("/bookings", auth, async (req, res) => {
   }
 })
 
+router.get("/provider/:providerId", async (req, res) => {
+  try {
+    const provider_data = await User.find({
+      _id: req.params.providerId,
+    })
+
+    res.json(provider_data)
+  } catch (error) {
+    res.status(500).json({ message: error.message })
+  }
+})
+
+
 // Get user services (providers only)
 router.get("/services", auth, async (req, res) => {
   try {

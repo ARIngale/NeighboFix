@@ -96,22 +96,43 @@ const ServiceDetails = () => {
         <p className="text-2xl font-bold text-black">₹{service.basePrice}</p>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg p-4 mb-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Customer Reviews</h2>
+      <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
+        <h2 className="text-xl font-bold text-gray-900 mb-5">Customer Reviews</h2>
+
         {reviews.length > 0 ? (
-          <ul className="space-y-3">
+            <ul className="space-y-5">
             {reviews.map((review) => (
-              <li key={review._id} className="border-b pb-2">
-                <p className="text-sm font-medium text-gray-800">{review.customerId.name}</p>
-                <p className="text-sm text-gray-600">{review.comment}</p>
-                <p className="text-xs text-yellow-500">Rating: {review.rating}⭐</p>
-              </li>
+                <li key={review._id} className="border-b pb-4 last:border-b-0">
+                <div className="flex justify-between items-center mb-1">
+                    <p className="text-sm font-semibold text-gray-800">
+                    {review.customerId?.name || "Anonymous"}
+                    </p>
+                    <span className="text-xs text-gray-500">
+                    {new Date(review.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                    })}
+                    </span>
+                </div>
+
+                {review.serviceId?.name && (
+                    <p className="text-xs text-gray-500 mb-1">
+                    Service: <span className="text-gray-700 font-medium">{review.serviceId.name}</span>
+                    </p>
+                )}
+
+                <p className="text-sm text-gray-600 mb-1">{review.comment}</p>
+
+                <p className="text-xs text-yellow-500 font-medium">Rating: {review.rating}⭐</p>
+                </li>
             ))}
-          </ul>
+            </ul>
         ) : (
-          <p className="text-gray-500">No reviews yet for this service.</p>
+            <p className="text-gray-500 text-sm">No reviews yet for this service.</p>
         )}
-      </div>
+        </div>
+
 
       <button
         onClick={() => handleBookNow(service._id)}
