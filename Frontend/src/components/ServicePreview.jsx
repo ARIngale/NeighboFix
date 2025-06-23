@@ -78,10 +78,11 @@ const ServicePreview = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {services.map((service) => (
-            <div
-              key={service._id}
-              className="group bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden"
-            >
+  <Link
+  to={`/service/${service._id}`}
+  key={service._id}
+  className="group bg-white rounded-2xl border border-gray-100 hover:border-gray-200 hover:shadow-xl transition-all duration-300 overflow-hidden"
+>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center text-2xl group-hover:bg-black group-hover:text-white transition-all duration-300">
@@ -97,8 +98,11 @@ const ServicePreview = () => {
                   {service.name}
                 </h3>
                 <p className="text-gray-600 mb-3 line-clamp-2">{service.description}</p>
-
-                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                
+                <Link
+                    to={`/provider/${service.providerId._id}`}
+                    className="block mb-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                  >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-900">{service.providerName}</p>
@@ -108,19 +112,24 @@ const ServicePreview = () => {
                           {service.rating > 0 ? service.rating : "New"}
                         </span>
                         {service.totalReviews > 0 && (
-                          <span className="text-xs text-gray-500 ml-2">({service.totalReviews} reviews)</span>
+                          <span className="text-xs text-gray-500 ml-2">
+                            ({service.totalReviews} reviews)
+                          </span>
                         )}
                       </div>
                     </div>
                     <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          service.providerId.isVerified ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {service.providerId.isVerified ? "Verified" : "Unverified"}
-                      </span>
+                      className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        service.providerId.isVerified
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {service.providerId.isVerified ? "Verified" : "Unverified"}
+                    </span>
                   </div>
-                </div>
+                </Link>
+
 
                 <div className="flex items-center justify-between">
                   <span className="inline-flex items-center px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
@@ -137,7 +146,7 @@ const ServicePreview = () => {
                   </button>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 

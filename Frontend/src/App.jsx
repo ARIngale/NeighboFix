@@ -17,6 +17,8 @@ import AdminDashboard from './pages/AdminDashboard'
 import AdminProtectedRoute from './components/AdminProtectedRoute'
 import Chatbot from './components/Chatbot'
 import NotFound from "./pages/NotFound"
+import ServiceDetails from "./pages/ServiceDetails"
+import ProviderProfile from "./pages/ProviderProfile"
 
 function App() {
 
@@ -28,6 +30,8 @@ function App() {
         <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/services" element={<Services />} />
+              <Route path="/service/:serviceId" element={<ServiceDetails />} />
+              <Route path="/provider/:providerId" element={<ProviderProfile />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
               <Route path="/why-choose-us" element={<WhyChooseUs />} />
               <Route path="/contact" element={<Contact />} />
