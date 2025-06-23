@@ -185,8 +185,8 @@ const Services = () => {
         {filteredServices.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredServices.map((service) => (
-              <Link
-                to={`/service/${service._id}`}
+              <div
+                onClick={() => navigate(`/service/${service._id}`)}
                 key={service._id}
                 className="group bg-white rounded-2xl border border-gray-100 hover:shadow-lg transition-all duration-300 overflow-hidden"
               >
@@ -204,8 +204,14 @@ const Services = () => {
                   <h3 className="text-xl font-bold text-black mb-2">{service.name}</h3>
                   <p className="text-gray-600 mb-3 line-clamp-2">{service.description}</p>
 
-                  <Link to={`/provider/${service.providerId._id}`} className="block mb-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                    <div className="flex items-center justify-between">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation(); // prevent triggering outer onClick
+                      navigate(`/provider/${service.providerId._id}`);
+                    }}
+                    className="block mb-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                  >                    
+                <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-900">{service.providerName}</p>
                         <div className="flex items-center mt-1">
@@ -226,7 +232,7 @@ const Services = () => {
                         {service.providerId.isVerified ? "Verified" : "Unverified"}
                       </span>
                     </div>
-                  </Link>
+                  </div>
 
                   <div className="flex items-center justify-between">
                     <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
@@ -250,7 +256,7 @@ const Services = () => {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         ) : (
