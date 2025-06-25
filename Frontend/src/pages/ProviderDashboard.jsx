@@ -196,32 +196,137 @@ const ProviderDashboard = () => {
         setShowPaymentModal(true)
     }
 
+    // const handlePaymentSubmit = async (e) => {
+    //   e.preventDefault()
+    //   try {
+    //     const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${selectedBooking._id}/complete`, {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //       body: JSON.stringify(paymentForm),
+    //     })
+  
+    //     if (response.ok) {
+    //       const result = await response.json()
+    //       setShowPaymentModal(false)
+    //       setSelectedBooking(null)
+    //       fetchProviderData()
+    //       alert("Service completed and payment recorded successfully!")
+    //     } else {
+    //       alert("Failed to complete service")
+    //     }
+    //   } catch (error) {
+    //     console.error("Error completing service:", error)
+    //     alert("Failed to complete service")
+    //   }
+    // }
+
     const handlePaymentSubmit = async (e) => {
       e.preventDefault()
+    
+      if (!selectedBooking || !selectedBooking._id) {
+        alert("Booking not selected.")
+        return
+      }
+    
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${selectedBooking._id}/complete`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(paymentForm),
-        })
-  
-        if (response.ok) {
-          const result = await response.json()
-          setShowPaymentModal(false)
-          setSelectedBooking(null)
-          fetchProviderData()
-          alert("Service completed and payment recorded successfully!")
+        if (paymentForm.paymentMethod === "card") {
+          // Step 1: Create Razorpay order from backend
+          const orderResponse = await fetch(`${import.meta.env.VITE_API_URL}/bookings/create-order`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              amount: paymentForm.amount,
+              bookingId: selectedBooking._id,
+            }),
+          })
+    
+          const orderData = await orderResponse.json()
+    
+          if (!orderResponse.ok || !orderData.order) {
+            throw new Error("Failed to create Razorpay order.")
+          }
+    
+          // Step 2: Open Razorpay checkout
+          const options = {
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID, // From Razorpay Dashboard
+            amount: orderData.order.amount,
+            currency: "INR",
+            name: "NeighboFix",
+            description: `Payment for ${selectedBooking.serviceName}`,
+            order_id: orderData.order.id,
+            handler: async function (response) {
+              const completeResponse = await fetch(
+                `${import.meta.env.VITE_API_URL}/bookings/${selectedBooking._id}/complete`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    ...paymentForm,
+                    paymentMethod: "card",
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                  }),
+                }
+              )
+            
+              if (completeResponse.ok) {
+                const result = await completeResponse.json()
+                setShowPaymentModal(false)
+                setSelectedBooking(null)
+                fetchProviderData()
+                alert("✅ Payment successful and service completed!")
+              } else {
+                alert("⚠️ Payment succeeded but booking update failed.")
+              }
+            },
+            prefill: {
+              name: user.name,
+              email: user.email,
+            },
+            theme: {
+              color: "#10b981",
+            },
+          }
+    
+          const rzp = new window.Razorpay(options)
+          rzp.open()
         } else {
-          alert("Failed to complete service")
+          // Fallback for cash or other methods
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${selectedBooking._id}/complete`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(paymentForm),
+          })
+    
+          if (response.ok) {
+            const result = await response.json()
+            setShowPaymentModal(false)
+            setSelectedBooking(null)
+            fetchProviderData()
+            alert("✅ Service completed and payment recorded successfully!")
+          } else {
+            alert("❌ Failed to complete service.")
+          }
         }
       } catch (error) {
-        console.error("Error completing service:", error)
-        alert("Failed to complete service")
+        console.error("Payment Error:", error)
+        alert(`❌ ${error.message}`)
       }
     }
+    
     
     const generateInsights = () => {
         const completedBookings = bookings.filter((b) => b.status === "completed")
@@ -961,8 +1066,8 @@ const ProviderDashboard = () => {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                   >
                     <option value="cash">Cash</option>
-                    {/* <option value="card">Credit/Debit Card</option>
-                    <option value="digital_wallet">Digital Wallet</option> */}
+                     <option value="card">Credit/Debit Card</option>
+                   {/* <option value="digital_wallet">Digital Wallet</option> */}
                   </select>
                 </div>
 
@@ -985,7 +1090,11 @@ const ProviderDashboard = () => {
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                  <button type="submit" 
+                    disabled={!paymentForm.amount || parseFloat(paymentForm.amount) <= 0}
+                    className={`flex-1 py-3 rounded-lg text-white ${
+                      !paymentForm.amount ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+                    }`}>
                     Complete Service
                   </button>
                 </div>

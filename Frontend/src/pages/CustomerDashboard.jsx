@@ -527,7 +527,7 @@ const CustomerDashboard = () => {
                                   📄 View Invoice
                                 </button>
                                 <Link
-                                  to={`/book/${booking.serviceId}`}
+                                  to={`/book/${booking.serviceId._id}`}
                                   className="border border-black text-black px-4 py-2 rounded hover:bg-black hover:text-white transition-colors text-sm w-full sm:w-auto text-center"
                                 >
                                   Book Again
