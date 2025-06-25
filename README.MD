@@ -51,7 +51,7 @@ NeighboFix is a role-based home services platform designed for customers, provid
   - 🔐 Secure checkout interface.
   - 🧾 Auto-generates **transaction ID**.
   - 📄 Automatically creates **invoice** and calculates **commission (15%)** for admin.
-```
+
 
 
 ## 📂 Folder Structure
@@ -65,7 +65,6 @@ project-root/
 - Frontend hosted on Vercel.
 - Backend hosted on Render.
 - Razorpay used for secure card payments (Test Mode)
-```
 
 
 
