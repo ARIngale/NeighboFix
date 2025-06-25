@@ -196,32 +196,6 @@ const ProviderDashboard = () => {
         setShowPaymentModal(true)
     }
 
-    // const handlePaymentSubmit = async (e) => {
-    //   e.preventDefault()
-    //   try {
-    //     const response = await fetch(`${import.meta.env.VITE_API_URL}/bookings/${selectedBooking._id}/complete`, {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //       body: JSON.stringify(paymentForm),
-    //     })
-  
-    //     if (response.ok) {
-    //       const result = await response.json()
-    //       setShowPaymentModal(false)
-    //       setSelectedBooking(null)
-    //       fetchProviderData()
-    //       alert("Service completed and payment recorded successfully!")
-    //     } else {
-    //       alert("Failed to complete service")
-    //     }
-    //   } catch (error) {
-    //     console.error("Error completing service:", error)
-    //     alert("Failed to complete service")
-    //   }
-    // }
 
     const handlePaymentSubmit = async (e) => {
       e.preventDefault()
@@ -381,7 +355,7 @@ const ProviderDashboard = () => {
               <div className="flex space-x-4">
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Total Earnings</p>
-                  <p className="text-2xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
+                  <p className="text-2xl font-bold text-green-600">₹{analytics.totalEarnings || 0}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Rating</p>
@@ -438,7 +412,7 @@ const ProviderDashboard = () => {
                   </div>
                   <div className="bg-gray-50 p-6 rounded-lg">
                     <h3 className="text-lg font-semibold text-black mb-2">Earnings</h3>
-                    <p className="text-3xl font-bold text-green-600">${analytics.totalEarnings || 0}</p>
+                    <p className="text-3xl font-bold text-green-600">₹{analytics.totalEarnings || 0}</p>
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -691,7 +665,7 @@ const ProviderDashboard = () => {
                       <h4 className="text-xl font-semibold text-black mb-2">{service.name}</h4>
                       <p className="text-gray-600 mb-4">{service.description}</p>
                       <div className="flex justify-between items-center mb-4">
-                        <span className="text-lg font-semibold text-black">Starting at ${service.basePrice}</span>
+                        <span className="text-lg font-semibold text-black">Starting at ₹{service.basePrice}</span>
                         <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">{service.category}</span>
                       </div>
                       <div className="flex space-x-2">
@@ -783,15 +757,15 @@ const ProviderDashboard = () => {
                     <ul className="space-y-3 text-sm">
                       <li className="flex justify-between">
                         <span>Total Earnings</span>
-                        <span className="font-bold text-green-700">${analytics.totalEarnings || 0}</span>
+                        <span className="font-bold text-green-700">₹{analytics.totalEarnings || 0}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>This Month</span>
-                        <span className="font-bold text-emerald-600">${analytics.monthlyEarnings || 0}</span>
+                        <span className="font-bold text-emerald-600">₹{analytics.monthlyEarnings || 0}</span>
                       </li>
                       <li className="flex justify-between">
                         <span>Avg per Job</span>
-                        <span className="font-bold">$75</span>
+                        <span className="font-bold">₹75</span>
                       </li>
                     </ul>
                   </div>
@@ -827,7 +801,7 @@ const ProviderDashboard = () => {
                       <div className="text-sm space-y-2">
                         <div className="flex justify-between">
                           <span>Monthly Revenue</span>
-                          <span className="font-bold text-emerald-700">${analytics.monthlyEarnings || 0}</span>
+                          <span className="font-bold text-emerald-700">₹{analytics.monthlyEarnings || 0}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Growth Rate</span>
@@ -977,7 +951,7 @@ const ProviderDashboard = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-black mb-2">Starting Price ($)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Starting Price (₹)</label>
                     <input
                       type="number"
                       value={serviceForm.basePrice}
@@ -1046,7 +1020,7 @@ const ProviderDashboard = () => {
 
               <form onSubmit={handlePaymentSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-black mb-2">Service Amount ($)</label>
+                  <label className="block text-sm font-medium text-black mb-2">Service Amount (₹)</label>
                   <input
                     type="number"
                     value={paymentForm.amount}

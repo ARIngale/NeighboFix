@@ -367,7 +367,7 @@ const CustomerDashboard = () => {
                                 <strong>Time:</strong> {booking.preferredTime}
                               </p>
                               <p className="text-gray-600">
-                                <strong>Amount:</strong> ${booking.totalAmount || 75}
+                                <strong>Amount:</strong> ₹{booking.totalAmount || 75}
                               </p>
                             </div>
                             <div>
@@ -486,7 +486,7 @@ const CustomerDashboard = () => {
                               <strong>Time:</strong> {booking.preferredTime}
                             </p>
                             <p className="text-gray-600">
-                              <strong>Amount:</strong> ${booking.totalAmount || 75}
+                              <strong>Amount:</strong> ₹{booking.totalAmount || 75}
                             </p>
                           </div>
                           <div>
@@ -786,59 +786,83 @@ const CustomerDashboard = () => {
       )}
     </div>
     {selectedInvoice && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-xl shadow-xl max-w-2xl w-full relative">
-          <h2 className="text-2xl font-bold mb-6 text-center border-b pb-2">
-            🧾 Invoice #{selectedInvoice.invoiceNumber}
-          </h2>
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <h4 className="font-semibold text-gray-700 mb-1">Customer</h4>
-              <p className="text-gray-900">{selectedInvoice.customerId.name}</p>
-              <p className="text-sm text-gray-500">{selectedInvoice.customerId.email}</p>
-              <p className="text-sm text-gray-500">{selectedInvoice.customerId.phone}</p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-700 mb-1">Provider</h4>
-              <p className="text-gray-900">{selectedInvoice.providerId.name}</p>
-              <p className="text-sm text-gray-500">{selectedInvoice.providerId.businessName}</p>
-              <p className="text-sm text-gray-500">{selectedInvoice.providerId.email}</p>
-            </div>
-          </div>
-
-          <div className="border-t border-b py-4 my-4">
-            <div className="flex justify-between mb-2">
-              <span className="font-medium text-gray-700">Service Amount:</span>
-              <span className="text-gray-900 font-semibold">₹{selectedInvoice.serviceAmount.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-medium text-gray-700">Payment Method:</span>
-              <span className="text-gray-900 capitalize">{selectedInvoice.paymentMethod}</span>
-            </div>
-          </div>
-
-          <div className="text-right mb-4">
-            <span
-              className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                selectedInvoice.status === "paid"
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}
-            >
-              {selectedInvoice.status}
-            </span>
-          </div>
-
+      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative overflow-hidden border">
+          
+          {/* Close Button */}
           <button
             onClick={() => setSelectedInvoice(null)}
-            className="absolute top-4 right-4 text-gray-500 hover:text-black"
+            className="absolute top-4 right-4 text-gray-400 hover:text-black transition"
             title="Close"
           >
-            ❌
+            ✕
           </button>
+
+          <div className="p-8 text-sm">
+            {/* Company Info */}
+            <div className="mb-6 border-b pb-4">
+              <h1 className="text-2xl font-bold text-gray-900">NeighboFix Services</h1>
+              <p className="text-gray-700">Amravati, India</p>
+              <p className="text-gray-700">Email: aringale17@gmail.com | Phone: +91 xxxxxxx</p>
+            </div>
+
+            {/* Invoice Header */}
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-800">Invoice #{selectedInvoice.invoiceNumber}</h2>
+                <p className="text-gray-600">Date: {new Date(selectedInvoice.createdAt).toLocaleDateString()}</p>
+              </div>
+              <div className="text-right">
+                <span
+                  className={`inline-block px-4 py-1 rounded-full text-sm font-semibold capitalize ${
+                    selectedInvoice.status === "paid"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {selectedInvoice.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Customer & Provider Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div>
+                <h4 className="text-gray-500 font-semibold mb-1">Billed To (Customer)</h4>
+                <p className="text-gray-900 font-medium">{selectedInvoice.customerId.name}</p>
+                <p className="text-gray-600">{selectedInvoice.customerId.email}</p>
+                <p className="text-gray-600">{selectedInvoice.customerId.phone}</p>
+              </div>
+              <div>
+                <h4 className="text-gray-500 font-semibold mb-1">Service Provider</h4>
+                <p className="text-gray-900 font-medium">{selectedInvoice.providerId.name}</p>
+                <p className="text-gray-600">{selectedInvoice.providerId.businessName}</p>
+                <p className="text-gray-600">{selectedInvoice.providerId.email}</p>
+              </div>
+            </div>
+
+            {/* Invoice Breakdown */}
+            <div className="bg-gray-50 border rounded-xl p-6 mb-6 space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600 font-medium">Service Amount</span>
+                <span className="text-gray-900 font-semibold">₹{selectedInvoice.serviceAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between pt-1">
+                <span className="text-gray-600 font-medium">Payment Method</span>
+                <span className="text-gray-800 capitalize">{selectedInvoice.paymentMethod}</span>
+              </div>
+            </div>
+
+            {/* Thank you */}
+            <div className="text-center text-gray-600 text-sm mt-4">
+              <p>Thank you for choosing NeighboFix 🙏</p>
+              <p className="italic">This invoice was generated electronically and does not require a physical signature.</p>
+            </div>
+          </div>
         </div>
       </div>
+
+
     )}
 
     </>

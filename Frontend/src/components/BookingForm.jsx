@@ -203,7 +203,7 @@ const BookingForm = () => {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-black">Starting at ${service.basePrice}</span>
+                      <span className="text-2xl font-bold text-black">Starting at ₹{service.basePrice}</span>
                       <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
                         {service.category}
                       </span>
@@ -404,7 +404,7 @@ const BookingForm = () => {
                   <hr className="my-3" />
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Starting Price:</span>
-                    <span>${service.basePrice}</span>
+                    <span>₹{service.basePrice}</span>
                   </div>
                 </div>
               </div>

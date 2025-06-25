@@ -52,7 +52,7 @@ const Chatbot = () => {
     }
 
     if (message.includes("price") || message.includes("cost") || message.includes("how much")) {
-      return "Our pricing:\n\nPlumbing: $75+\nElectrical: $85+\nGardening: $50+\nCarpentry: $80+\nPainting: $60+\n\nYou'll get an upfront quote before any work begins."
+      return "Our pricing:\n\nPlumbing: ₹75+\nElectrical: ₹85+\nGardening: ₹50+\nCarpentry: ₹80+\nPainting: ₹60+\n\nYou'll get an upfront quote before any work begins."
     }
 
     if (message.includes("book") || message.includes("schedule") || message.includes("appointment")) {

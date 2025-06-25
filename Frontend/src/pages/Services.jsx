@@ -152,10 +152,10 @@ const Services = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
               >
                 <option value="All">All Prices</option>
-                <option value="0-50">$0 - $50</option>
-                <option value="51-100">$51 - $100</option>
-                <option value="101-200">$101 - $200</option>
-                <option value="200+">$200+</option>
+                <option value="0-50">₹0 - $50</option>
+                <option value="51-100">₹51 - $100</option>
+                <option value="101-200">₹101 - $200</option>
+                <option value="200+">₹200+</option>
               </select>
             </div>
 

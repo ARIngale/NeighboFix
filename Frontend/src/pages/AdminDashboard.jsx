@@ -211,13 +211,13 @@ const AdminDashboard = () => {
             <div className="flex items-center space-x-6">
               <div className="text-right">
                 <p className="text-sm text-gray-600">Your Total Earnings</p>
-                <p className="text-3xl font-bold text-green-600">${analytics.totalPlatformEarnings?.toFixed(2) || 0}</p>
+                <p className="text-3xl font-bold text-green-600">₹{analytics.totalPlatformEarnings?.toFixed(2) || 0}</p>
                 <p className="text-xs text-gray-500">15% commission from all services</p>
               </div>
               <div className="text-right">
                 <p className="text-sm text-gray-600">This Month</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  ${analytics.monthlyPlatformEarnings?.toFixed(2) || 0}
+                ₹{analytics.monthlyPlatformEarnings?.toFixed(2) || 0}
                 </p>
                 <p className="text-xs text-gray-500">Your monthly commission</p>
               </div>
@@ -229,22 +229,22 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-green-50 border border-green-200 p-6 rounded-lg">
             <h3 className="text-lg font-semibold text-black mb-2">Your Earnings</h3>
-            <p className="text-3xl font-bold text-green-600">${analytics.totalPlatformEarnings?.toFixed(2) || 0}</p>
+            <p className="text-3xl font-bold text-green-600">₹{analytics.totalPlatformEarnings?.toFixed(2) || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Total commission earned</p>
           </div>
           <div className="bg-blue-50 border border-blue-200 p-6 rounded-lg">
             <h3 className="text-lg font-semibold text-black mb-2">Service Volume</h3>
-            <p className="text-3xl font-bold text-blue-600">${analytics.totalServiceVolume?.toFixed(2) || 0}</p>
+            <p className="text-3xl font-bold text-blue-600">₹{analytics.totalServiceVolume?.toFixed(2) || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Total services processed</p>
           </div>
           <div className="bg-purple-50 border border-purple-200 p-6 rounded-lg">
             <h3 className="text-lg font-semibold text-black mb-2">Provider Earnings</h3>
-            <p className="text-3xl font-bold text-purple-600">${analytics.totalProviderEarnings?.toFixed(2) || 0}</p>
+            <p className="text-3xl font-bold text-purple-600">₹{analytics.totalProviderEarnings?.toFixed(2) || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Total paid to providers</p>
           </div>
           <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
             <h3 className="text-lg font-semibold text-black mb-2">Avg Commission</h3>
-            <p className="text-3xl font-bold text-yellow-600">${analytics.avgCommissionPerBooking?.toFixed(2) || 0}</p>
+            <p className="text-3xl font-bold text-yellow-600">₹{analytics.avgCommissionPerBooking?.toFixed(2) || 0}</p>
             <p className="text-sm text-gray-600 mt-1">Per completed booking</p>
           </div>
         </div>
@@ -321,13 +321,13 @@ const AdminDashboard = () => {
                       <div className="flex justify-between">
                         <span>Your Total Commission</span>
                         <span className="font-semibold text-green-600">
-                          ${analytics.totalPlatformEarnings?.toFixed(2) || 0}
+                        ₹{analytics.totalPlatformEarnings?.toFixed(2) || 0}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span>Providers Total Earned</span>
                         <span className="font-semibold text-purple-600">
-                          ${analytics.totalProviderEarnings?.toFixed(2) || 0}
+                        ₹{analytics.totalProviderEarnings?.toFixed(2) || 0}
                         </span>
                       </div>
                     </div>
@@ -372,13 +372,13 @@ const AdminDashboard = () => {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{month.totalBookings}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${month.totalServiceVolume.toFixed(2)}
+                          ₹{month.totalServiceVolume.toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-600">
-                            ${month.providerEarnings.toFixed(2)}
+                          ₹{month.providerEarnings.toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                            ${month.platformCommission.toFixed(2)}
+                          ₹{month.platformCommission.toFixed(2)}
                           </td>
                         </tr>
                       ))}
@@ -407,15 +407,15 @@ const AdminDashboard = () => {
                           <div className="grid grid-cols-3 gap-4 text-center">
                             <div>
                               <p className="text-sm text-gray-600">Gross Earnings</p>
-                              <p className="text-lg font-bold text-blue-600">${provider.grossEarnings.toFixed(2)}</p>
+                              <p className="text-lg font-bold text-blue-600">₹{provider.grossEarnings.toFixed(2)}</p>
                             </div>
                             <div>
                               <p className="text-sm text-gray-600">Net Earnings</p>
-                              <p className="text-lg font-bold text-purple-600">${provider.netEarnings.toFixed(2)}</p>
+                              <p className="text-lg font-bold text-purple-600">₹{provider.netEarnings.toFixed(2)}</p>
                             </div>
                             <div>
                               <p className="text-sm text-gray-600">Commission Paid</p>
-                              <p className="text-lg font-bold text-green-600">${provider.commissionPaid.toFixed(2)}</p>
+                              <p className="text-lg font-bold text-green-600">₹{provider.commissionPaid.toFixed(2)}</p>
                             </div>
                           </div>
                         </div>
@@ -467,13 +467,13 @@ const AdminDashboard = () => {
                             {transaction.providerId.name || transaction.providerId.businessName}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${transaction.serviceAmount.toFixed(2)}
+                          ₹{transaction.serviceAmount.toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-purple-600">
-                            ${transaction.providerAmount.toFixed(2)}
+                          ₹{transaction.providerAmount.toFixed(2)}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
-                            ${transaction.commissionAmount.toFixed(2)}
+                          ₹{transaction.commissionAmount.toFixed(2)}
                           </td>
                         </tr>
                       ))}

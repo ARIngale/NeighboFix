@@ -23,7 +23,7 @@ const ServiceCard = ({ service, onBookNow }) => {
           </div>
           <div className="text-right">
             <div className="text-sm text-gray-500 mb-1">Starting at</div>
-            <div className="text-2xl font-bold text-black">${service.basePrice}</div>
+            <div className="text-2xl font-bold text-black">₹{service.basePrice}</div>
           </div>
         </div>
 
