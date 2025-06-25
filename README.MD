@@ -20,7 +20,7 @@ NeighboFix is a role-based home services platform designed for customers, provid
 - Accept or reject bookings.
 - View analytics: completed jobs, revenue.
 - See customer feedback (anonymous).
-- Earnings view (only cash payments supported).
+- Earnings view (Cash and Card - via Razorpay).
 - Real-time notifications from customers and admin.
 
 ### 🛠 Admin
@@ -34,12 +34,25 @@ NeighboFix is a role-based home services platform designed for customers, provid
 - Role-based access and control.
 
 ## ✨ Features Overview
-- Responsive, modern UI built with React + TailwindCSS.
-- Backend built with Express.js and MongoDB.
-- JWT-based authentication and authorization.
-- File uploads and image handling.
-- Notifications and real-time features.
-- Secure and scalable architecture.
+
+- 🔄 **Role-based authentication** (JWT-secured).
+- 💳 **Razorpay Integration** for **card** payments.
+- 💬 **Messaging system** for customer-provider communication.
+- 🧾 **Invoice generation** after service completion.
+- 📈 **Analytics dashboard** for both Admin and Providers.
+- 🧠 **Smart service filtering**.
+- 📩 **Notification system**.
+- ⚡ Fully responsive UI.
+
+## 💳 Payment Methods
+
+- ✅ **Cash** on service completion.
+- ✅ **Card Payments** via **[Razorpay](https://razorpay.com)** (Tested & Live Ready):
+  - 🔐 Secure checkout interface.
+  - 🧾 Auto-generates **transaction ID**.
+  - 📄 Automatically creates **invoice** and calculates **commission (15%)** for admin.
+```
+
 
 ## 📂 Folder Structure
 ```
@@ -51,6 +64,14 @@ project-root/
 ## 🚀 Deployment
 - Frontend hosted on Vercel.
 - Backend hosted on Render.
+- Razorpay used for secure card payments (Test Mode)
+```
+
+
 
 ## 📬 Contact
-For support, email: support@neighbofix.com
+For support, email: aringale17@gmail.com
+
+---
+
+© 2025 NeighboFix. All rights reserved. All rights are owned and maintained by the creator.
